@@ -523,7 +523,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ---- «назад» встаёт вплотную слева от кнопки «на главную».
        Ширину пилюли меряет скрипт: она меняется от языка ---- */
 .screen .topbar .back{position:fixed;left:auto;margin:0;z-index:61;
-  right:calc(50% + var(--bip-home-w,160px) / 2 + 14px);
+  right:calc(50% + var(--bip-home-w,160px) / 2 + 14px - var(--bip-pair-shift,0px));
   bottom:3.4vh}
 @media (max-aspect-ratio:1/1){
   .screen .topbar .back{bottom:3vh}   /* совпадает с #bip-home в этой ориентации */
@@ -559,7 +559,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #bip-title{flex:1;min-width:0;text-align:left;
  font-family:var(--serif);color:#f0d9a8;
  font-size:clamp(12px,1.05vw,20px);letter-spacing:.16em;text-transform:uppercase;line-height:1.25}
-#bip-home{position:fixed;left:50%;bottom:3.4vh;transform:translateX(-50%);z-index:61;
+/* --bip-pair-shift: половина пилюли «назад» — когда она есть на экране,
+   обе кнопки съезжают вправо и пара стоит по центру экрана */
+#bip-home{position:fixed;left:50%;bottom:3.4vh;
+ transform:translateX(calc(-50% + var(--bip-pair-shift,0px)));z-index:61;
  display:inline-flex;align-items:center;gap:.7em;
  padding:1.1vh 2.2vw;border-radius:999px;text-decoration:none;cursor:pointer;
  border:1.5px solid rgba(212,175,110,.55);
@@ -572,7 +575,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #bip-home svg{width:1.45em;height:1.45em;fill:none;stroke:currentColor;stroke-width:1.8;
  stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 #bip-home:hover{border-color:#e3b25e;background:linear-gradient(135deg,rgba(24,44,78,.9),rgba(10,20,36,.92))}
-#bip-home:active{transform:translateX(-50%) scale(.97)}
+#bip-home:active{transform:translateX(calc(-50% + var(--bip-pair-shift,0px))) scale(.97)}
 @media (max-aspect-ratio:1/1){
   #bip-head{gap:3vw;padding:1.1vh 4vw}
   #bip-title{font-size:clamp(13px,1.9vw,24px)}
@@ -740,6 +743,9 @@ function bipDock(){
   var s=document.documentElement.style;
   s.setProperty('--bip-home-w', home.offsetWidth+'px');
   s.setProperty('--bip-home-h', home.offsetHeight+'px');
+  /* сдвиг пары: половина ширины «назад» вместе с зазором */
+  var scr=document.querySelector('.screen.on'), back=scr&&scr.querySelector('.back');
+  s.setProperty('--bip-pair-shift', back ? ((back.offsetWidth+14)/2)+'px' : '0px');
 }
 window.addEventListener('resize', bipDock);
 function applyLang(){
@@ -761,7 +767,7 @@ document.addEventListener('click',e=>{
 const src=k=>IMG[k]?'data:image/webp;base64,'+IMG[k]:'';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-function show(id){ $$('.screen').forEach(s=>s.classList.toggle('on', s.id==='s-'+id)); }
+function show(id){ $$('.screen').forEach(s=>s.classList.toggle('on', s.id==='s-'+id)); bipDock(); }
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-go]'); if(!b) return;
   show(b.dataset.go);
