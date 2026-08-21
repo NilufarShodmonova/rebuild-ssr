@@ -372,17 +372,27 @@ body.light #dots i.on{background:#a97c2c}
 /* ================= общая шапка и возврат на главную ================= */
 /* полоса во всю ширину, как .tp-head на главной: слева логотип и название,
    справа — возврат в меню разделов */
+/* шапка один в один с .tp-head из index.html. Там все размеры заданы в rem
+   при html{font-size:calc(.55vw + .55vh)}; здесь своего html{font-size} нет,
+   поэтому повторяем ту же сетку через --hrem. */
+:root{--hrem:calc(0.55vw + 0.55vh);
+ /* высота .tp-head: padding 2rem сверху и снизу + логотип 5.4rem
+    при пропорции 480x456 (5.13rem) + рамка 1px */
+ --bip-head-h:calc(9.13 * var(--hrem) + 1px)}
 #bip-head{position:fixed;left:0;right:0;top:0;z-index:60;
- display:flex;align-items:center;gap:1.6vw;
- padding:.9vh 2.4vw;
+ box-sizing:border-box;min-height:var(--bip-head-h);
+ display:flex;align-items:center;gap:calc(2.2 * var(--hrem));
+ padding:calc(2 * var(--hrem)) calc(3.4 * var(--hrem));
  border-bottom:1px solid rgba(212,175,110,.35);
  background:linear-gradient(135deg,rgba(16,31,56,.85) 0%,rgba(11,22,40,.70) 50%,rgba(7,14,26,.92) 100%);
  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
- box-shadow:0 1rem 3rem rgba(0,0,0,.5)}
-#bip-head img{width:clamp(30px,2.6vw,50px);height:auto;flex:0 0 auto}
+ box-shadow:0 calc(1 * var(--hrem)) calc(3 * var(--hrem)) rgba(0,0,0,.5)}
+#bip-head img{width:calc(5.4 * var(--hrem));height:auto;flex:0 0 auto}
+/* = .tp-welcome в index.html */
 #bip-title{flex:1;min-width:0;text-align:left;
- font-family:var(--serif);color:#f0d9a8;
- font-size:clamp(12px,1.05vw,20px);letter-spacing:.16em;text-transform:uppercase;line-height:1.25}
+ font-family:"Trajan Pro","Palatino Linotype","Book Antiqua",Georgia,"Times New Roman",serif;
+ color:#f2dda8;
+ font-size:calc(2.5 * var(--hrem));letter-spacing:.22em;text-transform:uppercase;line-height:1.2}
 #bip-home{position:fixed;left:50%;bottom:7.5vh;transform:translateX(-50%);z-index:61;
  display:inline-flex;align-items:center;gap:.7em;
  padding:1.1vh 2.2vw;border-radius:999px;text-decoration:none;cursor:pointer;
@@ -398,8 +408,9 @@ body.light #dots i.on{background:#a97c2c}
 #bip-home:hover{border-color:#e3b25e;background:linear-gradient(135deg,rgba(24,44,78,.9),rgba(10,20,36,.92))}
 #bip-home:active{transform:translateX(-50%) scale(.97)}
 @media (max-aspect-ratio:1/1){
-  #bip-head{gap:3vw;padding:1.1vh 4vw}
-  #bip-title{font-size:clamp(13px,1.9vw,24px)}
+  /* вертикальный экран: ширина 1080px, длинные названия разделов на 2.5rem
+     не встают в строку — уменьшаем кегль, высота шапки остаётся index-овой */
+  #bip-title{font-size:calc(1.85 * var(--hrem))}
   #bip-home{bottom:6vh;font-size:clamp(13px,1.8vw,22px);padding:1.2vh 5vw}
 }
 /* собственные контролы страницы уходят из-под шапки */
@@ -409,11 +420,9 @@ body.light #dots i.on{background:#a97c2c}
    сдвигаем его левее на ширину кнопки и выравниваем по её центру */
 #cnt{top:11vh;right:calc(2.2vw + clamp(44px,3.4vw,60px) + 1.2vw);
  line-height:clamp(44px,3.4vw,60px)}
-.era{top:14vh}
 @media (max-aspect-ratio:1/1){
   #play{top:9.5vh}
   #cnt{top:9.5vh;right:calc(5vw + clamp(44px,3.4vw,60px) + 2.4vw)}
-  .era{top:12.5vh}
 }
 
 /* ---- нижний блок страницы: кнопка «на главную» снизу, над ней точки,
@@ -424,7 +433,10 @@ body.light #dots i.on{background:#a97c2c}
 #dots{bottom:calc(var(--bip-bottom) + var(--bip-home-h,74px) + var(--bip-gap))}
 /* padding на .sl не сработал бы: слои внутри позиционированы абсолютно
    и считаются от padding-box, поэтому укорачиваем сам #deck */
-#deck{bottom:calc(var(--bip-bottom) + var(--bip-home-h,74px)
+/* слайдер начинается ПОД шапкой, как .tp-menu__body под .tp-head в index.html,
+   а не уезжает под неё: высота слайда = экран - шапка - нижний блок */
+#deck{top:var(--bip-head-h);
+ bottom:calc(var(--bip-bottom) + var(--bip-home-h,74px)
     + var(--bip-gap) + var(--bip-dots) + var(--bip-clear))}
 
 /* ---- круглые стрелки листания в правом нижнем углу ---- */
