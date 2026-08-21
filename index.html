@@ -659,6 +659,7 @@ en:{
     $(id).classList.add('is-active');
     document.body.classList.toggle('tp-mode-inner', id !== '#tp-splash');
     if (id === '#tp-menu') alignIcons();   /* пока экран скрыт, getBBox не работает */
+    resetIdle();   /* на сплэше таймер снимается, на внутренних — взводится заново */
   }
 
   function archSVG(iconKey){
@@ -782,8 +783,15 @@ en:{
   $('#tp-home').addEventListener('click', function(){ showScreen('#tp-splash'); });
 
   /* --- сброс по бездействию --- */
+  function isSplashActive(){
+    var s = $('#tp-splash');
+    return !!s && s.classList.contains('is-active');
+  }
   function resetIdle(){
     clearTimeout(idleTimer);
+    idleTimer = null;
+    /* сплэш и есть экран простоя: сбрасывать на него сам себя незачем */
+    if (isSplashActive()) return;
     idleTimer = setTimeout(function(){ showScreen('#tp-splash'); }, IDLE_MS);
   }
   ['pointerdown','touchstart','mousemove','wheel','keydown'].forEach(function(ev){
