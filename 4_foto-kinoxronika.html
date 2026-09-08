@@ -889,6 +889,8 @@ const booksEl=$('#books');
 /* 3-, 4- va 5-albomlar — FlipHTML5 ning oflayn nusxalari (alboms/ papkasi);
    muqova sifatida albomning birinchi sahifasi ko'rsatiladi */
 const ALBUM_LINKS={
+  0:{url:'alboms/albom_1/index.html'},                                   /* muqova — sahifadagi base64 */
+  1:{url:'alboms/albom_2/index.html'},
   2:{url:'alboms/albom_3/index.html', cover:'images/albums/albom_3.jpg'},
   3:{url:'alboms/albom_4/index.html', cover:'images/albums/albom_4.jpg'},
   4:{url:'alboms/albom_5/index.html', cover:'images/albums/albom_5.jpg'}
@@ -903,7 +905,7 @@ function buildBooks(){
     const el=document.createElement('button');
     el.className='book-card'; el.style.setProperty('--i',ai);
     const link=ALBUM_LINKS[ai];
-    const cover=link ? link.cover : src(a.pages[a.cover]);
+    const cover=(link && link.cover) ? link.cover : src(a.pages[a.cover]);
     el.innerHTML=`<div class="book-shell"><div class="book-face"><span class="spine"></span>
         <img src="${cover}" alt="" loading="lazy"><span class="sheen"></span></div></div>
       <div class="book-meta"><div class="yr">${a.years}</div><h3>${t(a.title)}</h3>

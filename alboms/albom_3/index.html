@@ -181,8 +181,14 @@
 				configurable: true,
 				get: function(){ return cfg; },
 				set: function(v){
-					cfg = v;
+					/* pleyer ba'zida oxirida bookConfig'ni bo'sh obyektga almashtiradi
+					   (albom_1/2 da shunday) — eng to'liq nusxani saqlab qolamiz */
+					if (!(v && typeof v === 'object' && Object.keys(v).length > 50)){
+						if (!cfg) cfg = v;
+						return;
+					}
 					try{
+						cfg = v;
 						if (v && typeof v === 'object'){
 							v.showDoublePage = (window.innerWidth < 600) ? 'single' : 'double';
 							/* "mobil" rejimda pleyer sahifani 90° buradi va gorizontal surish o'rniga
