@@ -130,7 +130,9 @@
     dynamicLoading.load(
       `${publicResourceTemplateJsPath}Browser.js`,
       function () {
-        if (isPhone() || isPad()) {
+        // BIP: sayt sarlavhasi/paneli bilan mos kelishi uchun har doim PC shabloni
+        // (telefon shabloni sahifani 90° buradi va o'zining kulrang panellarini chizadi)
+        if (false && (isPhone() || isPad())) {
           dynamicLoading.load([
             `${templateSourcePath}javascript/main.phone.min.js`,
             `${templateSourcePath}style/style.phone.css`,
