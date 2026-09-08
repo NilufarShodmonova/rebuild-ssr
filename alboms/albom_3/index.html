@@ -189,6 +189,19 @@
 			});
 		}catch(e){}
 
+		/* Bu albomning 80-86-sahifalari bo'sh (bir xil oq skanlar) — ularni ko'rsatmaymiz */
+		var BIP_MAX_PAGES = 79;
+		try{
+			var pagesVal;
+			Object.defineProperty(window, 'fliphtml5_pages', {
+				configurable: true,
+				get: function(){ return pagesVal; },
+				set: function(v){
+					pagesVal = (v && v.length > BIP_MAX_PAGES) ? v.slice(0, BIP_MAX_PAGES) : v;
+				}
+			});
+		}catch(e){}
+
 		/* har doim kitob ko'rinishi — ikki sahifali yoyma (juda tor ekranlardan tashqari) */
 		try{
 			var cfg = null;
@@ -245,7 +258,7 @@
 		<button class="bip-nav" id="bip-prev" type="button" aria-label="Oldingi sahifa">
 			<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
 		</button>
-		<div class="bip-count"><b id="bip-cur">1</b> / <span id="bip-total">86</span></div>
+		<div class="bip-count"><b id="bip-cur">1</b> / <span id="bip-total">79</span></div>
 		<button class="bip-nav" id="bip-next" type="button" aria-label="Keyingi sahifa">
 			<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
 		</button>
@@ -306,7 +319,7 @@
 	</script>
 	<script type="text/javascript">
 	(function(){
-		var A = {"short": {"uz": "Oʻzbekiston yoʻllari", "ru": "Дороги Узбекистана", "en": "Roads of Uzbekistan"}, "title": {"uz": "Oʻzbekiston avtomobil yoʻllari", "ru": "Автомобильные дороги Узбекистана", "en": "Motor roads of Uzbekistan"}, "total": 86};
+		var A = {"short": {"uz": "Oʻzbekiston yoʻllari", "ru": "Дороги Узбекистана", "en": "Roads of Uzbekistan"}, "title": {"uz": "Oʻzbekiston avtomobil yoʻllari", "ru": "Автомобильные дороги Узбекистана", "en": "Motor roads of Uzbekistan"}, "total": 79};
 		var L = 'uz';
 		try{ var v = window.localStorage.getItem('bipLang'); if(v && A.short[v]) L = v; }catch(e){}
 		var T = {
@@ -369,15 +382,24 @@
 
 		/* pleyer kitobni birinchi hisoblashda panellarni hisobga olmaydi —
 		   tayyor bo'lgach bir marta resize yuboramiz, u qayta markazlaydi */
+		/* sahifalar soni shifrlangan configda 86 — kesilgandan keyin to'g'rilaymiz */
+		function fixTotal(){
+			var n = 79;
+			try{
+				if (window.bookConfig) bookConfig.totalPageCount = n;
+				window.totalPageCount = n; window.originTotalPageCount = n;
+				if (window.global){ global.totalPageCount = n; global.originTotalPageCount = n; }
+			}catch(e){}
+		}
 		function reveal(){ document.documentElement.classList.add('bip-ready'); }
 		var relaid = false;
 		function relayout(){
 			if (relaid || !document.querySelector('.book, #bookContainer .page')) return;
 			relaid = true;
 			var fire = function(){ window.dispatchEvent(new Event('resize')); };
-			fire(); recenter();
-			setTimeout(function(){ fire(); recenter(); }, 500);
-			setTimeout(function(){ recenter(); reveal(); }, 800);
+			fixTotal(); fire(); recenter();
+			setTimeout(function(){ fixTotal(); fire(); recenter(); }, 500);
+			setTimeout(function(){ fixTotal(); recenter(); reveal(); }, 800);
 		}
 		var watch = setInterval(function(){ relayout(); if (relaid) clearInterval(watch); }, 120);
 		window.addEventListener('load', relayout);
