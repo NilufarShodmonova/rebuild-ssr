@@ -888,10 +888,7 @@ window.addEventListener('resize',()=>{ opSheet.layout(); });
 const booksEl=$('#books');
 /* 3-, 4- va 5-albomlar — FlipHTML5 ning oflayn nusxalari (alboms/ papkasi) */
 const ALBUM_LINKS={2:'alboms/albom_3/index.html', 3:'alboms/albom_4/index.html', 4:'alboms/albom_5/index.html'};
-function openAlbumLink(url){
-  const w=window.open(url,'_blank','noopener');
-  if(!w) location.href=url;
-}
+function openAlbumLink(url){ location.href=url; }
 function buildBooks(){
   booksEl.innerHTML='';
   ALBUMS.forEach((a,ai)=>{
@@ -1329,6 +1326,13 @@ document.addEventListener('keydown',e=>{
 });
 
 applyLang();
+
+/* oflayn albomdan qaytganda toʻgʻridan-toʻgʻri javonni koʻrsatamiz: ...#albums */
+function bipOpenFromHash(){
+  if(location.hash==='#albums'){ show('albums'); revealShelf(); }
+}
+bipOpenFromHash();
+window.addEventListener('hashchange', bipOpenFromHash);
 </script>
 
 <div id="bip-idle" hidden>
