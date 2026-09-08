@@ -116,6 +116,21 @@
 			.bip-bot{ gap:34px; }
 		}
 
+		/* kiosk: harakatsizlikdan keyingi ogohlantirish */
+		#bip-idle{ position:fixed; inset:0; z-index:2147483600; display:grid; place-items:center;
+			background:rgba(3,6,14,.9); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+			font-family:var(--bip-sans); }
+		#bip-idle[hidden]{ display:none; }
+		#bip-idle .box{ text-align:center; padding:5vh 6vw; border-radius:22px;
+			border:1.5px solid rgba(212,175,110,.55);
+			background:linear-gradient(135deg,rgba(16,31,56,.92),rgba(7,14,26,.95));
+			box-shadow:0 2rem 6rem rgba(0,0,0,.6); }
+		#bip-idle .msg{ font-family:var(--bip-serif); color:#f0d9a8;
+			font-size:clamp(22px,2.6vw,40px); letter-spacing:.14em; text-transform:uppercase; line-height:1.35; }
+		#bip-idle .sub{ margin-top:14px; color:var(--bip-muted); font-size:clamp(13px,1.2vw,18px); letter-spacing:.08em; }
+		#bip-idle .cd{ margin-top:3vh; font-family:var(--bip-serif); color:var(--bip-gold-l);
+			font-size:clamp(44px,6vw,96px); line-height:1; }
+
 		@media (max-width:820px){
 			:root{ --bip-head:52px; --bip-foot:58px; }
 			.bip-crumb{ font-size:10.5px; letter-spacing:.2em; overflow:hidden; text-overflow:ellipsis; }
@@ -235,6 +250,60 @@
 			<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
 		</button>
 	</div>
+	<!-- ==== BIP: kiosk — harakatsizlikdan keyin bosh sahifaga ==== -->
+	<div id="bip-idle" hidden>
+		<div class="box">
+			<div class="msg" id="bip-idle-msg"></div>
+			<div class="sub" id="bip-idle-sub"></div>
+			<div class="cd"><span id="bip-idle-n">5</span></div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	/* 10 daqiqa harakatsizlikdan keyin — titul ekranga qaytamiz (saytdagi kabi) */
+	(function(){
+		var IDLE_MS = 600000, WARN_SEC = 5;
+		var TXT = {
+			msg:{uz:'Davom etish uchun ekranga teging',
+			     ru:'\u041a\u043e\u0441\u043d\u0438\u0442\u0435\u0441\u044c \u044d\u043a\u0440\u0430\u043d\u0430, \u0447\u0442\u043e\u0431\u044b \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c',
+			     en:'Touch the screen to continue'},
+			sub:{uz:'Aks holda ekran bosh sahifaga qaytadi',
+			     ru:'\u0418\u043d\u0430\u0447\u0435 \u044d\u043a\u0440\u0430\u043d \u0432\u0435\u0440\u043d\u0451\u0442\u0441\u044f \u043d\u0430 \u0433\u043b\u0430\u0432\u043d\u0443\u044e',
+			     en:'Otherwise the screen returns to the main page'}
+		};
+		var L = 'uz';
+		try{ var v = window.localStorage.getItem('bipLang'); if(v && TXT.msg[v]) L = v; }catch(e){}
+
+		var pop = document.getElementById('bip-idle'),
+		    popMsg = document.getElementById('bip-idle-msg'),
+		    popSub = document.getElementById('bip-idle-sub'),
+		    popNum = document.getElementById('bip-idle-n');
+		var last = Date.now(), warnLeft = 0;
+
+		function hideWarn(){ warnLeft = 0; if(pop) pop.hidden = true; }
+		function showWarn(){
+			if(popMsg) popMsg.textContent = TXT.msg[L];
+			if(popSub) popSub.textContent = TXT.sub[L];
+			warnLeft = WARN_SEC;
+			if(popNum) popNum.textContent = warnLeft;
+			if(pop) pop.hidden = false;
+		}
+		function everySecond(){
+			if(warnLeft > 0){
+				warnLeft--;
+				if(popNum) popNum.textContent = warnLeft;
+				if(warnLeft <= 0) window.location.href = '../../index.html';
+				return;
+			}
+			if(Date.now() - last >= IDLE_MS) showWarn();
+		}
+		function reset(){ last = Date.now(); if(warnLeft > 0) hideWarn(); }
+		['pointerdown','touchstart','touchmove','mousemove','wheel','keydown'].forEach(function(ev){
+			document.addEventListener(ev, reset, {passive:true});
+		});
+		setInterval(everySecond, 1000);
+		reset();
+	})();
+	</script>
 	<script type="text/javascript">
 	(function(){
 		var A = {"short": {"uz": "Oʻzbekiston yoʻllari", "ru": "Дороги Узбекистана", "en": "Roads of Uzbekistan"}, "title": {"uz": "Oʻzbekiston avtomobil yoʻllari", "ru": "Автомобильные дороги Узбекистана", "en": "Motor roads of Uzbekistan"}, "total": 86};
