@@ -886,6 +886,12 @@ window.addEventListener('resize',()=>{ opSheet.layout(); });
 
 /* ---------- albomlar ---------- */
 const booksEl=$('#books');
+/* 3-, 4- va 5-albomlar — FlipHTML5 ning oflayn nusxalari (alboms/ papkasi) */
+const ALBUM_LINKS={2:'alboms/albom_3/index.html', 3:'alboms/albom_4/index.html', 4:'alboms/albom_5/index.html'};
+function openAlbumLink(url){
+  const w=window.open(url,'_blank','noopener');
+  if(!w) location.href=url;
+}
 function buildBooks(){
   booksEl.innerHTML='';
   ALBUMS.forEach((a,ai)=>{
@@ -895,7 +901,11 @@ function buildBooks(){
         <img src="${src(a.pages[a.cover])}" alt=""><span class="sheen"></span></div></div>
       <div class="book-meta"><div class="yr">${a.years}</div><h3>${t(a.title)}</h3>
         <p>${t(a.sub)}</p><div class="pages">${a.pages.length} ${t(UI.pages)}</div></div>`;
-    el.addEventListener('click',()=>openAlbum(ai,el));
+    el.addEventListener('click',()=>{
+      const link=ALBUM_LINKS[ai];
+      if(link){ openAlbumLink(link); return; }
+      openAlbum(ai,el);
+    });
     const shell=el.querySelector('.book-shell'), face=el.querySelector('.book-face');
     el.addEventListener('pointermove',ev=>{
       const r=face.getBoundingClientRect();
