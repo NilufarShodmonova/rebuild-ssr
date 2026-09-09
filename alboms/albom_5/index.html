@@ -76,6 +76,9 @@
 		/* sarlavha paneli — sayt sahifalaridagi #bip-head bilan bir xil:
 		   nishon + tilla rangli nom, shu gradient, hoshiya va soya */
 		.bip-top{ top:0; height:var(--bip-head); box-sizing:border-box;
+			/* uch ustun: chetdagilari teng (1fr) — shuning uchun o'rtadagi sarlavha
+			   nishon va tugma kengligidan qat'i nazar ekran markazida turadi */
+			display:grid; grid-template-columns:1fr minmax(0,auto) 1fr; align-items:center;
 			gap:calc(2.2 * var(--hrem)); padding:0 calc(3.4 * var(--hrem));
 			border-bottom:1px solid rgba(212,175,110,.35);
 			background:linear-gradient(135deg,rgba(16,31,56,.85) 0%,rgba(11,22,40,.70) 50%,rgba(7,14,26,.92) 100%);
@@ -84,8 +87,9 @@
 		.bip-bot{ bottom:0; height:var(--bip-foot); border-top:1px solid var(--bip-gold-dim);
 			justify-content:center; gap:clamp(14px,3vw,28px); }
 
-		.bip-logo{ flex:0 0 auto; width:calc(5.4 * var(--hrem)); height:auto; }
-		.bip-head-txt{ flex:1; min-width:0; }
+		.bip-logo{ flex:0 0 auto; justify-self:start; width:calc(5.4 * var(--hrem)); height:auto; }
+		.bip-head-txt{ min-width:0; text-align:center; }
+		.bip-top .bip-btn{ justify-self:end; }
 		/* albom nomi — saytdagi #bip-title kabi */
 		.bip-title{ font-family:var(--bip-title); color:#f2dda8;
 			font-size:clamp(13px, calc(2.05 * var(--hrem)), 34px);
@@ -452,7 +456,6 @@
 			var top = head ? head.offsetHeight : 0;
 			var bottom = window.innerHeight - (foot ? foot.offsetHeight : 0);
 			var dy = Math.round((top + bottom) / 2 - (r.top + r.bottom) / 2);
-			dy += Math.round((bottom - top) * 0.10);        /* markazdan 10% pastroqqa */
 			var gap = Math.round(bottom - 12 - (r.bottom + dy));   /* pastki panelga tegib ketmasin */
 			if (gap < 0) dy += gap;
 			if (Math.abs(dy) > 2 && Math.abs(dy) < 600)
