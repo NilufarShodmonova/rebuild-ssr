@@ -226,7 +226,7 @@
 			});
 		}catch(e){}
 
-		/* har doim kitob ko'rinishi — ikki sahifali yoyma (juda tor ekranlardan tashqari) */
+		/* har doim bitta sahifa — ekran markazida (yoyma emas) */
 		try{
 			var cfg = null;
 			Object.defineProperty(window, 'bookConfig', {
@@ -242,7 +242,7 @@
 					try{
 						cfg = v;
 						if (v && typeof v === 'object'){
-							v.showDoublePage = (window.innerWidth < 600) ? 'single' : 'double';
+							v.showDoublePage = 'single';
 							/* "mobil" rejimda pleyer sahifani 90° buradi va gorizontal surish o'rniga
 							   vertikalini kutadi; biz burilishni o'chirganmiz — rejimni ham o'chiramiz,
 							   aks holda barmoq bilan o'ngdan chapga surish ishlamaydi */
