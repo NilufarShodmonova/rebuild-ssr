@@ -163,28 +163,52 @@
 		   saytdagi kabi WebAudio bilan qog'oz shitirlashini o'zimiz chiqaramiz */
 		try{
 			var AC = null;
-			function paperSound(vol, dur){
+			/* Yumshoq varaq ovozi: keskin shovqin emas — sekin ko'tarilib, pastga tushadigan
+			   qog'oz shitirlashi. VOL — balandlik, DUR — davomiylik (sekund). */
+			var FLIP_VOL = 0.075, FLIP_DUR = 0.42;   /* balandlik va davomiylik */
+			function paperSound(){
 				try{
 					if (window.global && global.flipSoundIsPlaying === false) return;
 					AC = AC || new (window.AudioContext || window.webkitAudioContext)();
 					if (AC.state === 'suspended') AC.resume();
-					var sr = AC.sampleRate, buf = AC.createBuffer(1, Math.floor(sr * dur), sr), ch = buf.getChannelData(0);
+					var t0 = AC.currentTime, dur = FLIP_DUR, sr = AC.sampleRate;
+					var buf = AC.createBuffer(1, Math.floor(sr * dur), sr), ch = buf.getChannelData(0);
+					/* shovqin + sekin "hilpirash" (varaq qanoti) */
+					var prev = 0;
 					for (var i = 0; i < ch.length; i++){
 						var t = i / ch.length;
-						ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.6) * 0.5;
+						var n = Math.random() * 2 - 1;
+						prev = prev * 0.72 + n * 0.28;              /* biroz yumshatilgan shovqin */
+						var flutter = 1 + 0.22 * Math.sin(2 * Math.PI * 16 * t * (1 - 0.4 * t));
+						ch[i] = prev * flutter;
 					}
 					var s = AC.createBufferSource(); s.buffer = buf;
-					var f = AC.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.8;
-					f.frequency.setValueAtTime(1500, AC.currentTime);
-					f.frequency.exponentialRampToValueAtTime(300, AC.currentTime + dur);
-					var g = AC.createGain(); g.gain.value = vol;
-					s.connect(f); f.connect(g); g.connect(AC.destination); s.start();
+
+					/* varaq yonidan o'tayotgandek: chastota avval ko'tarilib, keyin tushadi */
+					var bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.9;
+					bp.frequency.setValueAtTime(520, t0);
+					bp.frequency.linearRampToValueAtTime(1500, t0 + dur * 0.3);
+					bp.frequency.exponentialRampToValueAtTime(680, t0 + dur);
+
+					/* yuqori chiyillashni olib tashlaymiz — quloqqa yoqimli bo'lsin */
+					var lp = AC.createBiquadFilter(); lp.type = 'lowpass';
+					lp.frequency.setValueAtTime(3600, t0); lp.Q.value = 0.7;
+
+					/* yumshoq kirish va uzun so'nish — "chirt" etmasin */
+					var g = AC.createGain();
+					g.gain.setValueAtTime(0.0001, t0);
+					g.gain.linearRampToValueAtTime(FLIP_VOL, t0 + 0.07);
+					g.gain.exponentialRampToValueAtTime(FLIP_VOL * 0.55, t0 + dur * 0.45);
+					g.gain.exponentialRampToValueAtTime(0.0005, t0 + dur);
+
+					s.connect(bp); bp.connect(lp); lp.connect(g); g.connect(AC.destination);
+					s.start(t0); s.stop(t0 + dur);
 				}catch(e){}
 			}
 			/* pleyer varaqlaganda (tugma, surish, klaviatura) shu funksiyani chaqiradi */
 			Object.defineProperty(window, 'playFlipSound', {
 				configurable: true,
-				get: function(){ return function(){ paperSound(0.16, 0.24); }; },
+				get: function(){ return function(){ paperSound(); }; },
 				set: function(){}
 			});
 		}catch(e){}
