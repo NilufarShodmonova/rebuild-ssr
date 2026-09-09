@@ -30,7 +30,13 @@
 			--bip-text:#e2e8f6; --bip-muted:#8b9cbf;
 			--bip-serif:"Cormorant Garamond","Times New Roman",Georgia,serif;
 			--bip-sans:"Manrope","Segoe UI",system-ui,-apple-system,sans-serif;
-			--bip-head:62px; --bip-foot:66px;
+			/* sarlavha shrifti — saytning sahifa sarlavhasi bilan bir xil */
+			--bip-title:"Trajan Pro","Palatino Linotype","Book Antiqua",Georgia,"Times New Roman",serif;
+			/* saytdagi kabi o'lchov birligi: ekran bo'yicha o'sadi */
+			--hrem:calc(0.55vw + 0.55vh);
+			/* balandlik sayt sahifasining sarlavhasi bilan bir xil:
+			   2rem tepa/past + nishon 5.4rem (480x456 => 5.13rem) + 1px hoshiya */
+			--bip-head:calc(9.13 * var(--hrem) + 1px); --bip-foot:66px;
 		}
 		html{
 			background:
@@ -67,12 +73,27 @@
 			font-family:var(--bip-sans); font-weight:300; color:var(--bip-text);
 			background:rgba(7,13,28,.86); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
 		}
-		.bip-top{ top:0; height:var(--bip-head); border-bottom:1px solid var(--bip-gold-dim); }
+		/* sarlavha paneli — sayt sahifalaridagi #bip-head bilan bir xil:
+		   nishon + tilla rangli nom, shu gradient, hoshiya va soya */
+		.bip-top{ top:0; height:var(--bip-head); box-sizing:border-box;
+			gap:calc(2.2 * var(--hrem)); padding:0 calc(3.4 * var(--hrem));
+			border-bottom:1px solid rgba(212,175,110,.35);
+			background:linear-gradient(135deg,rgba(16,31,56,.85) 0%,rgba(11,22,40,.70) 50%,rgba(7,14,26,.92) 100%);
+			-webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+			box-shadow:0 calc(1 * var(--hrem)) calc(3 * var(--hrem)) rgba(0,0,0,.5); }
 		.bip-bot{ bottom:0; height:var(--bip-foot); border-top:1px solid var(--bip-gold-dim);
 			justify-content:center; gap:clamp(14px,3vw,28px); }
 
-		.bip-crumb{ flex:1; min-width:0; font-size:12px; letter-spacing:.28em;
-			text-transform:uppercase; color:var(--bip-muted);
+		.bip-logo{ flex:0 0 auto; width:calc(5.4 * var(--hrem)); height:auto; }
+		.bip-head-txt{ flex:1; min-width:0; }
+		/* albom nomi — saytdagi #bip-title kabi */
+		.bip-title{ font-family:var(--bip-title); color:#f2dda8;
+			font-size:clamp(13px, calc(2.05 * var(--hrem)), 34px);
+			letter-spacing:.22em; text-transform:uppercase; line-height:1.2;
+			white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+		/* uning ustidagi mayda satr: bo'lim nomi */
+		.bip-crumb{ min-width:0; font-size:clamp(9px, calc(1.02 * var(--hrem)), 15px);
+			letter-spacing:.28em; text-transform:uppercase; color:var(--bip-muted);
 			white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 		.bip-crumb b{ color:var(--bip-gold-l); font-weight:500; }
 
@@ -106,8 +127,7 @@
 			.bip-back-bot{ display:inline-flex; }
 		}
 		@media (orientation:portrait) and (min-width:821px){
-			:root{ --bip-head:78px; --bip-foot:108px; }
-			.bip-crumb{ font-size:14px; }
+			:root{ --bip-foot:108px; }
 			.bip-btn{ padding:14px 26px; font-size:14px; }
 			.bip-btn svg{ width:17px; height:17px; }
 			.bip-nav{ width:74px; height:74px; }
@@ -132,8 +152,9 @@
 			font-size:clamp(44px,6vw,96px); line-height:1; }
 
 		@media (max-width:820px){
-			:root{ --bip-head:52px; --bip-foot:58px; }
-			.bip-crumb{ font-size:10.5px; letter-spacing:.2em; overflow:hidden; text-overflow:ellipsis; }
+			:root{ --bip-foot:58px; }
+			.bip-crumb{ letter-spacing:.2em; }
+			.bip-title{ letter-spacing:.14em; }
 			.bip-btn{ padding:7px 12px; font-size:10.5px; letter-spacing:.12em; }
 			.bip-btn b{ display:none; }
 			.bip-nav{ width:44px; height:44px; }
@@ -143,7 +164,11 @@
 <body>
 		<!-- ==== BIP: sarlavha ==== -->
 	<div class="bip-bar bip-top">
-		<div class="bip-crumb">IV &middot; <span id="bip-sec"></span> / <b id="bip-short"></b></div>
+		<img class="bip-logo" src="../../images/logo.png" alt="">
+		<div class="bip-head-txt">
+			<div class="bip-crumb">IV &middot; <span id="bip-sec"></span></div>
+			<div class="bip-title" id="bip-short"></div>
+		</div>
 		<button class="bip-btn" id="bip-back" type="button">
 			<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg> <b id="bip-back-t"></b>
 		</button>
