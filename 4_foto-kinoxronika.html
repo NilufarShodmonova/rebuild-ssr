@@ -529,13 +529,19 @@ html.start-albums #s-albums{opacity:1 !important; visibility:visible !important;
 /* шапка — вверху экрана, сетка центрируется в оставшейся высоте */
 #s-albums .shelf-head{margin-top:0}
 /* число колонок подбирает fitShelf() — чтобы все альбомы были видны без прокрутки */
-#s-albums .books{margin-top:auto; margin-bottom:auto;
-  position:relative; top:var(--shelf-drop,0px);
+/* сетка занимает нижнюю половину: от середины экрана до нижних кнопок, без прокрутки */
+#s-albums{overflow:hidden; padding-bottom:var(--albums-pb)}
+#s-albums .books{position:absolute; left:0; right:0; top:50vh; bottom:var(--albums-pb);
+  margin:0 auto; align-content:start;
   grid-template-columns:repeat(var(--cols,3),minmax(0,1fr))}
+#s-albums .books[data-filled]{align-content:space-between}
+/* заголовок — по центру высоты верхней половины (между шапкой и сеткой) */
+#s-albums .shelf-head{position:absolute; left:0; right:0; margin:0 !important;
+  top:calc((var(--bip-head-h) + 50vh) / 2); transform:translateY(-50%)}
 /* карточка всегда вертикальная: так в колонку помещается больше рядов */
 #s-albums .book-card{flex-direction:column; align-items:stretch}
 #s-albums .book-shell{flex:0 0 auto}
-#s-albums{padding-bottom:calc(3.4vh + var(--bip-home-h,74px) + 64px)}
+#s-albums{--albums-pb:calc(3.4vh + var(--bip-home-h,74px) + 44px)}
 /* ustunlar koʻpaygani sayin kartochka ixchamlashadi — 10+ albom ham bir ekranga sigʻadi */
 #s-albums .books[data-cols="4"]{--shelf-gap:26px; width:min(1460px,96vw)}
 #s-albums .books[data-cols="5"]{--shelf-gap:19px; width:min(1680px,97vw)}
@@ -564,7 +570,7 @@ html.start-albums #s-albums{opacity:1 !important; visibility:visible !important;
 #s-albums[data-cols="4"] .shelf-head p,
 #s-albums[data-cols="5"] .shelf-head p{font-size:12px}
 #s-albums[data-cols="4"],
-#s-albums[data-cols="5"]{padding-bottom:calc(2vh + var(--bip-home-h,74px) + 26px)}
+#s-albums[data-cols="5"]{--albums-pb:calc(2vh + var(--bip-home-h,74px) + 44px)}
 /* juda past ekran: yil va izoh olib tashlanadi, sarlavha bir qatorda qoladi */
 #s-albums .books[data-tight] .book-card{gap:7px}
 #s-albums .books[data-tight] .book-meta .yr{display:none}
@@ -575,7 +581,7 @@ html.start-albums #s-albums{opacity:1 !important; visibility:visible !important;
   /* в портрете у #bip-home свои размеры — повторяем их один в один */
   .screen .topbar .back{font-size:clamp(13px,1.8vw,22px);padding:1.2vh 5vw}
   /* в портрете полосу под кнопками резервируем сами — иначе последний ряд уходит под них */
-  #s-albums{padding-bottom:calc(3.4vh + var(--bip-home-h,74px) + 64px)}
+  #s-albums{--albums-pb:calc(3vh + var(--bip-home-h,74px) + 48px)}
   #s-albums .topbar{order:-1; margin-top:0; padding:0 0 18px}
   /* стрелки листания книги стояли на bottom:112px — ровно под кнопками.
      Поднимаем их над всей нижней полосой */
@@ -852,7 +858,29 @@ const src=k=>{
 };
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-function show(id){ $$('.screen').forEach(s=>s.classList.toggle('on', s.id==='s-'+id)); bipDock(); }
+function show(id){ $$('.screen').forEach(s=>s.classList.toggle('on', s.id==='s-'+id)); bipDock();
+  requestAnimationFrame(centerHeads); }
+/* bo'lim sarlavhasi — shapka (yoki undan pastdagi yo'l ko'rsatkich) bilan
+   kontent boshlanishi orasidagi bo'sh joyning o'rtasida turadi */
+function centerHeads(){
+  const hd=$('#bip-head');
+  [['#s-slides','.ch-grid'],['#s-video','.vgrid']].forEach(([sel,gq])=>{
+    const sc=$(sel), head=sc&&sc.querySelector('.shelf-head'), grid=sc&&sc.querySelector(gq);
+    if(!head || !grid || !sc.classList.contains('on')) return;
+    head.style.transform='';
+    /* ekran kirish animatsiyasida siljigan — hammasini ekran koordinatasida o'lchaymiz */
+    const s0=sc.getBoundingClientRect().top;
+    const hr=head.getBoundingClientRect();
+    let top=hd ? hd.getBoundingClientRect().bottom-s0 : 0;
+    const bar=sc.querySelector('.topbar');
+    if(bar){ const br=bar.getBoundingClientRect(); if(br.bottom<=hr.top+1) top=Math.max(top, br.bottom-s0); }
+    const scroller=grid.closest('.chapters');
+    const bottom=grid.getBoundingClientRect().top-s0+(scroller?scroller.scrollTop:0);
+    const dy=Math.round((top+bottom)/2-((hr.top+hr.bottom)/2-s0));
+    if(dy>0) head.style.transform='translateY('+dy+'px)';
+  });
+}
+window.addEventListener('resize',centerHeads);
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-go]'); if(!b) return;
   show(b.dataset.go);
@@ -1007,17 +1035,13 @@ function buildBooks(){
 function fitShelf(){
   const sc=$('#s-albums'); const n=booksEl.children.length;
   if(!sc || !n) return;
-  /* bo'sh balandlik: tepa/past panellar va sarlavha bloki hisobga olinadi.
-     ixcham rejim ularning o'lchamini o'zgartiradi — shuning uchun har safar qayta o'lchaymiz */
-  const room=()=>{
-    const cs=getComputedStyle(sc);
-    let used=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
-    ['.topbar','.shelf-head'].forEach(q=>{
-      const el=sc.querySelector(q); if(!el) return;
-      const es=getComputedStyle(el);
-      used+=el.offsetHeight+(parseFloat(es.marginTop)||0)+(parseFloat(es.marginBottom)||0);
-    });
-    return sc.clientHeight-used;
+  /* setka ekranning pastki yarmini egallaydi — balandligi CSS'da belgilangan */
+  const room=()=>booksEl.clientHeight;
+  /* kontent balandligi (setka qat'iy balandlikda, scrollHeight yetarli emas) */
+  const contentH=()=>{
+    let h=0;
+    Array.prototype.forEach.call(booksEl.children,c=>{h=Math.max(h,c.offsetTop+c.offsetHeight);});
+    return h;
   };
   /* kam ustundan boshlaymiz: sigʻsa — kartochkalar kattaroq qoladi */
   const cand=(innerHeight>=innerWidth?[2,3,4]:[3,4,5]).filter(c=>c<=Math.max(n,1));
@@ -1025,54 +1049,51 @@ function fitShelf(){
     booksEl.style.setProperty('--cols',c);
     booksEl.dataset.cols=c; sc.dataset.cols=c;
   };
+  delete booksEl.dataset.filled;
+  delete booksEl.dataset.tight;
   booksEl.style.removeProperty('--cover-h');
   let fit=null, best=null;
   for(const c of cand){
     apply(c);
-    const h=booksEl.scrollHeight;
+    const h=contentH();
     if(h<=room()){ fit=c; break; }
     if(best===null || h<best.h) best={c,h};
   }
   apply(fit!==null ? fit : (best ? best.c : cand[cand.length-1]));
 
-  /* hali ham sigʻmasa — muqova balandligini qolgan joyga moslaymiz */
+  /* muqova balandligini pastki yarmni toʻldiradigan qilib tanlaymiz */
   const MINCOVER=56;
   const fitCovers=()=>{
+    booksEl.style.removeProperty('--cover-h');
     const availH=room();
-    if(booksEl.scrollHeight<=availH) return true;
     const cols=parseInt(booksEl.dataset.cols,10)||cand[0];
     const rows=Math.ceil(n/cols);
     const gap=parseFloat(getComputedStyle(booksEl).rowGap)||0;
-    let extra=0;   /* kartochkaning muqovadan tashqari qismi (yil, sarlavha, tugma) */
+    let extra=0, colW=0;   /* kartochkaning muqovadan tashqari qismi (yil, sarlavha, tugma) */
     Array.prototype.forEach.call(booksEl.children,c=>{
       const f=c.querySelector('.book-face');
       extra=Math.max(extra, c.offsetHeight-(f?f.offsetHeight:0));
+      colW=Math.max(colW, c.offsetWidth);
     });
-    const h=Math.floor((availH-gap*(rows-1))/rows-extra);
+    /* muqova tabiiy nisbatidan balandroq boʻlmasin — aks holda rasm qirqiladi */
+    const natural=Math.floor(colW*1169/1700);
+    let h=Math.min(natural, Math.floor((availH-gap*(rows-1))/rows-extra));
     if(h<MINCOVER) return false;
     booksEl.style.setProperty('--cover-h', h+'px');
     /* sarlavha qisqarishi bilan balandlik o'zgaradi — bir marta aniqlashtiramiz */
-    const over=booksEl.scrollHeight-room();
-    if(over>0) booksEl.style.setProperty('--cover-h',
-      Math.max(MINCOVER, h-Math.ceil(over/rows))+'px');
+    const over=contentH()-room();
+    if(over>0){
+      h=Math.max(MINCOVER, h-Math.ceil(over/rows));
+      booksEl.style.setProperty('--cover-h', h+'px');
+    }
     return true;
   };
-  delete booksEl.dataset.tight;
   if(!fitCovers()){
     booksEl.dataset.tight='1';
-    booksEl.style.removeProperty('--cover-h');
     fitCovers();
   }
-
-  /* сетку опускаем чуть ниже середины — но не ближе 64px к нижним кнопкам */
-  booksEl.style.setProperty('--shelf-drop','0px');
-  const home=$('#bip-home');
-  let drop=0;
-  if(home && sc.scrollHeight<=sc.clientHeight+1){
-    const room=home.getBoundingClientRect().top-booksEl.getBoundingClientRect().bottom;
-    drop=Math.max(0, Math.min(innerHeight*0.10, room-64));
-  }
-  booksEl.style.setProperty('--shelf-drop', Math.round(drop)+'px');
+  /* qatorlar yuqoridan (ekran oʻrtasi) pastgacha taqsimlanadi */
+  if(Math.ceil(n/(parseInt(booksEl.dataset.cols,10)||1))>1) booksEl.dataset.filled='1';
 }
 window.addEventListener('resize',fitShelf);
 
