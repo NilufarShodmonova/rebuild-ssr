@@ -44,6 +44,16 @@
 				radial-gradient(900px 600px at 90% 110%, #10203f 0%, transparent 55%),
 				var(--bip-ink) !important;
 		}
+		/* Pleyer html va body balandligini getHeight() bo'yicha o'zi yozadi, kitob esa
+		   ataylab kichraytirilgan — shuning uchun html foni ekranni to'liq qoplamaydi.
+		   Fonni ekranga mahkamlangan alohida qatlamga chiqaramiz: u har doim to'liq. */
+		body::before{
+			content:""; position:fixed; inset:0; z-index:-10; pointer-events:none;
+			background:
+				radial-gradient(1200px 700px at 50% -10%, #16264d 0%, transparent 60%),
+				radial-gradient(900px 600px at 90% 110%, #10203f 0%, transparent 55%),
+				var(--bip-ink);
+		}
 		/* body'dagi transform fixed-panellarni o'ziga bog'lab qo'yadi — uni o'chiramiz;
 		   fonni ham majburan shaffof qilamiz: pleyer yuklanishda body'ga #323232 yozadi */
 		body{ background:transparent !important; transform:none !important; }
@@ -63,6 +73,12 @@
 		/* pleynerning kulrang foni o'rniga saytning fonini ko'rsatamiz */
 		#bacgradient, .bacgradient, #bacgradient > div, .bacgradient > div,
 		#tmpLoading{ background:transparent !important; }
+		/* Pleynerning o'z asboblar paneli (kattalashtirish, sahifalar, ovoz) sahifa
+		   qutisiga nisbatan turadi. Kitob ataylab kichraytirilgani uchun sahifa
+		   qutisi ham past bo'lib qoladi va panel ekran o'rtasida osilib qoladi —
+		   uni albomlardagi kabi ekran pastiga mahkamlaymiz. */
+		#bottomBar, .thumbnail_progress{ position:fixed !important; bottom:calc(var(--bip-foot) - 12px) !important; }
+
 		/* "Made with FlipHTML5" belgisi va telefon shablonining kulrang panellari */
 		.logoBar, .miniLogo, .catalog_logo, .modern-toolbar-logo,
 		.phoneTopBar, .phoneModernBottomBar{ display:none !important; }
@@ -258,7 +274,8 @@
 					try{
 						cfg = v;
 						if (v && typeof v === 'object'){
-							v.showDoublePage = 'single';
+							/* kitob ochilgan holatda ko'rinsin: chap va o'ng sahifa birga */
+							v.showDoublePage = 'double';
 							/* "mobil" rejimda pleyer sahifani 90° buradi va gorizontal surish o'rniga
 							   vertikalini kutadi; biz burilishni o'chirganmiz — rejimni ham o'chiramiz,
 							   aks holda barmoq bilan o'ngdan chapga surish ishlamaydi */
@@ -272,13 +289,17 @@
 				}
 			});
 		}catch(e){}
+		/* Kitob ekranni to'ldirib yubormasin: pleyer kitobni o'ziga berilgan
+		   balandlikka moslaydi, shuning uchun balandlikni ataylab kichraytiramiz.
+		   BOOK_SCALE — kitobning ekranga nisbatan kattaligi (0.69 => taxminan yarmi). */
+		var BOOK_SCALE = 0.69;
 		try{
 			Object.defineProperty(window, 'getHeight', {
 				configurable: true,
 				get: function(){
 					return function(){
 						var h = real ? real.call(window) : (window.innerHeight || 0);
-						return Math.max(200, h - inset());
+						return Math.max(200, Math.round((h - inset()) * BOOK_SCALE));
 					};
 				},
 				set: function(v){ real = v; }
@@ -425,6 +446,46 @@
 		/* pleyer kitobni birinchi hisoblashda panellarni hisobga olmaydi —
 		   tayyor bo'lgach bir marta resize yuboramiz, u qayta markazlaydi */
 		function reveal(){ document.documentElement.classList.add('bip-ready'); }
+		/* Pleyer kitobni avval butun ekran bo'yicha chizadi va faqat keyin biz
+		   bergan (kichraytirilgan) o'lchamga qaytaradi. O'sha "katta" kadr
+		   ko'rinib qolsa, kitob sakrab tushgandek bo'ladi. Faqat vaqt bo'yicha
+		   kutish ishonchsiz: sekin qurilmada katta kadr kechroq keladi.
+		   Shuning uchun o'lchamning o'ziga qaraymiz — kitob panellar orasidagi
+		   bo'sh joyning sezilarli qismidan kichik bo'lgandagina (ya'ni bizning
+		   o'lchamimizga tushgach) va bir necha o'lchovda o'zgarmay turgach ochamiz. */
+		function bookHeight(){
+			var els = document.querySelectorAll('#bookContainer .book, #bookContainer .page, #page1');
+			var h = 0;
+			for (var i = 0; i < els.length; i++){
+				var r = els[i].getBoundingClientRect();
+				if (r.height > h) h = r.height;
+			}
+			return Math.round(h);
+		}
+		/* panellar orasidagi bo'sh balandlik */
+		function freeHeight(){
+			var t = document.querySelector('.bip-top'), b = document.querySelector('.bip-bot');
+			return Math.max(1, window.innerHeight - ((t ? t.offsetHeight : 0) + (b ? b.offsetHeight : 0)));
+		}
+		function revealWhenStable(){
+			/* Kitob dastlab to'g'ri o'lchamda chiziladi, SHUNDAN KEYIN pleyer uni bir
+			   marta butun ekran bo'yicha qayta chizadi va biz uni 800 ms dagi oxirgi
+			   "resize" bilan qaytaramiz. Shuning uchun faqat o'lchamga qarash yetarli
+			   emas — o'sha tuzatish o'tib ketishini ham kutamiz. */
+			var SETTLE_MS = 1100;
+			var t0 = Date.now(), last = -1, steady = 0, tries = 0;
+			(function tick(){
+				var h = bookHeight();
+				/* 0.85 — "to'liq ekran" kadri bilan bizning o'lchamimiz orasidagi chegara */
+				var scaled = h > 0 && h <= freeHeight() * 0.85;
+				if (scaled && h === last && Date.now() - t0 >= SETTLE_MS){
+					if (++steady >= 3){ recenter(); reveal(); return; }
+				} else steady = 0;
+				last = h;
+				if (++tries > 110){ recenter(); reveal(); return; }   /* zaxira */
+				setTimeout(tick, 60);
+			})();
+		}
 		var relaid = false;
 		function relayout(){
 			if (relaid || !document.querySelector('.book, #bookContainer .page')) return;
@@ -432,7 +493,8 @@
 			var fire = function(){ window.dispatchEvent(new Event('resize')); };
 			fire(); recenter();
 			setTimeout(function(){ fire(); recenter(); }, 500);
-			setTimeout(function(){ recenter(); reveal(); }, 800);
+			setTimeout(function(){ fire(); recenter(); }, 800);
+			revealWhenStable();
 		}
 		var watch = setInterval(function(){ relayout(); if (relaid) clearInterval(watch); }, 120);
 		window.addEventListener('load', relayout);
