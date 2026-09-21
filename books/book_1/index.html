@@ -77,7 +77,28 @@
 		   qutisiga nisbatan turadi. Kitob ataylab kichraytirilgani uchun sahifa
 		   qutisi ham past bo'lib qoladi va panel ekran o'rtasida osilib qoladi —
 		   uni albomlardagi kabi ekran pastiga mahkamlaymiz. */
-		#bottomBar, .thumbnail_progress{ position:fixed !important; bottom:calc(var(--bip-foot) - 12px) !important; }
+		/* Pleynerning o'z asboblar paneli va sahifa slayderi butunlay olib tashlandi —
+		   pastdagi dumaloq tugmalar (oldingi / keyingi va sahifa hisoblagichi) yetarli. */
+		#bottomBar, .thumbnail_progress{ display:none !important; }
+		/* pleynerning chetdagi varaqlash strelkalari ham kerak emas —
+		   pastda o'zimizning dumaloq tugmalarimiz bor */
+		.flip_button_left, .flip_button_right,
+		[class*="flip_button"]{ display:none !important; }
+		/* Sahifa qutilari butunlay shaffof. Varaqlash paytida sahifa rasmi hali
+		   chizilib ulgurmasa (sekin qurilmada, ayniqsa isCachePages=false bo'lgani
+		   uchun), orqadagi to'q ko'k fon ko'rinib qoladi va sahifa o'rnida qora
+		   to'rtburchak bo'lib ko'rinadi. Sahifa ortiga qog'oz rangini qo'yamiz —
+		   shunda rasm kechiksa ham oq varaq ko'rinadi, qora quti emas. */
+		#bookContainer .side-image,
+		#bookContainer .right-side,
+		#bookContainer .left-side{ background-color:#fff !important; }
+		/* Varaqlanayotgan sahifa kitob qutisidan tashqariga chiqadi (egilish va
+		   soyalar bir necha barobar baland). #bookContainer da overflow:hidden
+		   turibdi va uning balandligi biz bergan o'lchamga teng — shuning uchun
+		   varaqlash paytida sahifaning pastki yarmi qirqilib, o'rnida to'q fon
+		   ko'rinib qolardi. Animatsiya to'liq ko'rinishi uchun qirqishni olib
+		   tashlaymiz (qutining o'lchami o'zgarmaydi). */
+		#bookContainer{ overflow:visible !important; }
 
 		/* "Made with FlipHTML5" belgisi va telefon shablonining kulrang panellari */
 		.logoBar, .miniLogo, .catalog_logo, .modern-toolbar-logo,
