@@ -1,0 +1,513 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	
+	<title>Avtomobil yoʻllarini loyihalash. 2-qism</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta http-equiv="Expires" content="0">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-control" content="no-cache">
+	<meta http-equiv="Cache" content="no-cache">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="monitor-signature" content="monitor:player:html5">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
+	<meta name="robots" content="max-image-preview:large"/>
+			<link rel="icon" href="" rel="shortcut icon" type="image/x-icon">
+	<meta name="keywords" content="" />
+	<style>
+		html{width:100%;height:100%;left:0;top:0;margin:0;padding:0;position:fixed;}
+		body{width:100%;height:100%;left:0;top:0;margin:0;padding:0;position:fixed;}
+	</style>
+	<link rel="preload" as="image" href="files/large/d3a01ad2575b0112e2187ea757ca3faf.webp" fetchpriority="high">
+
+	<!-- ==== BIP: sayt uslubidagi sarlavha va boshqaruv paneli ==== -->
+	<style id="bip-skin">
+		:root{
+			--bip-ink:#070d1c; --bip-panel:#111d3b;
+			--bip-gold:#c9973f; --bip-gold-l:#e9cd94; --bip-gold-dim:rgba(201,151,63,.26);
+			--bip-text:#e2e8f6; --bip-muted:#8b9cbf;
+			--bip-serif:"Cormorant Garamond","Times New Roman",Georgia,serif;
+			--bip-sans:"Manrope","Segoe UI",system-ui,-apple-system,sans-serif;
+			/* sarlavha shrifti — saytning sahifa sarlavhasi bilan bir xil */
+			--bip-title:"Trajan Pro","Palatino Linotype","Book Antiqua",Georgia,"Times New Roman",serif;
+			/* saytdagi kabi o'lchov birligi: ekran bo'yicha o'sadi */
+			--hrem:calc(0.55vw + 0.55vh);
+			/* balandlik sayt sahifasining sarlavhasi bilan bir xil:
+			   2rem tepa/past + nishon 5.4rem (480x456 => 5.13rem) + 1px hoshiya */
+			--bip-head:calc(9.13 * var(--hrem) + 1px); --bip-foot:66px;
+		}
+		html{
+			background:
+				radial-gradient(1200px 700px at 50% -10%, #16264d 0%, transparent 60%),
+				radial-gradient(900px 600px at 90% 110%, #10203f 0%, transparent 55%),
+				var(--bip-ink) !important;
+		}
+		/* body'dagi transform fixed-panellarni o'ziga bog'lab qo'yadi — uni o'chiramiz;
+		   fonni ham majburan shaffof qilamiz: pleyer yuklanishda body'ga #323232 yozadi */
+		body{ background:transparent !important; transform:none !important; }
+		/* pleynerning yuklanish qatlami (kulrang fon + yonboshlagan kitob belgisi +
+		   "Альбом 1" sarlavhasi) butunlay olib tashlanadi — orqada saytning foni qoladi.
+		   Pleyer rangni avval #323232, keyin rgb(50,50,50) ko'rinishida yozadi — shuning
+		   uchun oxirgi qoida rangdan qat'i nazar ishlaydi */
+		body > div[style*="#323232"],
+		body > div[style*="rgb(50, 50, 50)"],
+		body > div:not([id]):not([class])[style*="background-color"]{ display:none !important; }
+		/* pleyer maydonini panellar orasiga siqamiz (balandlik window.getHeight orqali);
+		   --bip-shift — kitobni aniq markazga tekislash uchun JS beradigan tuzatma */
+		.tmpContainer{ top:calc(var(--bip-head) + var(--bip-shift, 0px)) !important;
+			opacity:0; transition:opacity .3s ease; }
+		/* kitob joyiga o'tirgach ko'rsatamiz — yuklanishda sakrab qolmasin */
+		html.bip-ready .tmpContainer{ opacity:1; }
+		/* pleynerning kulrang foni o'rniga saytning fonini ko'rsatamiz */
+		#bacgradient, .bacgradient, #bacgradient > div, .bacgradient > div,
+		#tmpLoading{ background:transparent !important; }
+		/* "Made with FlipHTML5" belgisi va telefon shablonining kulrang panellari */
+		.logoBar, .miniLogo, .catalog_logo, .modern-toolbar-logo,
+		.phoneTopBar, .phoneModernBottomBar{ display:none !important; }
+
+		.bip-bar{
+			position:fixed; left:0; right:0; z-index:2147483000;
+			display:flex; align-items:center; gap:18px; padding:0 clamp(14px,3vw,40px);
+			font-family:var(--bip-sans); font-weight:300; color:var(--bip-text);
+			background:rgba(7,13,28,.86); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+		}
+		/* sarlavha paneli — sayt sahifalaridagi #bip-head bilan bir xil:
+		   nishon + tilla rangli nom, shu gradient, hoshiya va soya */
+		.bip-top{ top:0; height:var(--bip-head); box-sizing:border-box;
+			/* uch ustun: chetdagilari teng (1fr) — shuning uchun o'rtadagi sarlavha
+			   nishon va tugma kengligidan qat'i nazar ekran markazida turadi */
+			display:grid; grid-template-columns:1fr minmax(0,auto) 1fr; align-items:center;
+			gap:calc(2.2 * var(--hrem)); padding:0 calc(3.4 * var(--hrem));
+			border-bottom:1px solid rgba(212,175,110,.35);
+			background:linear-gradient(135deg,rgba(16,31,56,.85) 0%,rgba(11,22,40,.70) 50%,rgba(7,14,26,.92) 100%);
+			-webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+			box-shadow:0 calc(1 * var(--hrem)) calc(3 * var(--hrem)) rgba(0,0,0,.5); }
+		.bip-bot{ bottom:0; height:var(--bip-foot); border-top:1px solid var(--bip-gold-dim);
+			justify-content:center; gap:clamp(14px,3vw,28px); }
+
+		.bip-logo{ flex:0 0 auto; justify-self:start; width:calc(5.4 * var(--hrem)); height:auto; }
+		.bip-head-txt{ min-width:0; text-align:center; }
+		.bip-top .bip-btn{ justify-self:end; }
+		/* albom nomi — saytdagi #bip-title kabi */
+		.bip-title{ font-family:var(--bip-title); color:#f2dda8;
+			font-size:clamp(13px, calc(2.05 * var(--hrem)), 34px);
+			letter-spacing:.22em; text-transform:uppercase; line-height:1.2;
+			white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+		/* uning ustidagi mayda satr: bo'lim nomi */
+		.bip-crumb{ min-width:0; font-size:clamp(9px, calc(1.02 * var(--hrem)), 15px);
+			letter-spacing:.28em; text-transform:uppercase; color:var(--bip-muted);
+			white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+		.bip-crumb b{ color:var(--bip-gold-l); font-weight:500; }
+
+		.bip-btn{ font:inherit; cursor:pointer; display:inline-flex; align-items:center; gap:10px;
+			border:1px solid var(--bip-gold-dim); border-radius:999px; padding:9px 18px;
+			background:none; font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+			color:var(--bip-gold-l); transition:background .25s,border-color .25s; }
+		.bip-btn:hover{ background:rgba(201,151,63,.12); border-color:var(--bip-gold); }
+		.bip-btn svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; }
+
+		.bip-nav{ font:inherit; cursor:pointer; width:52px; height:52px; border-radius:50%;
+			display:grid; place-items:center; color:var(--bip-gold-l);
+			border:1px solid var(--bip-gold-dim); background:rgba(9,16,33,.7);
+			transition:background .25s,border-color .25s,opacity .25s; }
+		.bip-nav:hover{ background:rgba(201,151,63,.16); border-color:var(--bip-gold); }
+		.bip-nav[disabled]{ opacity:.22; pointer-events:none; }
+		.bip-nav svg{ width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.6;
+			stroke-linecap:round; stroke-linejoin:round; }
+
+		.bip-count{ min-width:96px; text-align:center; font-size:12px; letter-spacing:.24em;
+			color:var(--bip-muted); }
+		.bip-count b{ color:var(--bip-gold-l); font-weight:500; }
+
+		/* pastdagi "Albomlar" tugmasi — faqat portret (sensorli panel) rejimida */
+		.bip-back-bot{ display:none; position:absolute; left:clamp(14px,3vw,40px); }
+
+		/* portret ekran (masalan 1080x1920 sensorli panel):
+		   tugmalar kattaroq, "Albomlar" pastga tushadi — qo'l yetadigan joyga */
+		@media (orientation:portrait){
+			.bip-top .bip-btn{ display:none; }
+			.bip-back-bot{ display:inline-flex; }
+		}
+		@media (orientation:portrait) and (min-width:821px){
+			:root{ --bip-foot:108px; }
+			.bip-btn{ padding:14px 26px; font-size:14px; }
+			.bip-btn svg{ width:17px; height:17px; }
+			.bip-nav{ width:74px; height:74px; }
+			.bip-nav svg{ width:30px; height:30px; }
+			.bip-count{ min-width:130px; font-size:15px; }
+			.bip-bot{ gap:34px; }
+		}
+
+		/* kiosk: harakatsizlikdan keyingi ogohlantirish */
+		#bip-idle{ position:fixed; inset:0; z-index:2147483600; display:grid; place-items:center;
+			background:rgba(3,6,14,.9); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+			font-family:var(--bip-sans); }
+		#bip-idle[hidden]{ display:none; }
+		#bip-idle .box{ text-align:center; padding:5vh 6vw; border-radius:22px;
+			border:1.5px solid rgba(212,175,110,.55);
+			background:linear-gradient(135deg,rgba(16,31,56,.92),rgba(7,14,26,.95));
+			box-shadow:0 2rem 6rem rgba(0,0,0,.6); }
+		#bip-idle .msg{ font-family:var(--bip-serif); color:#f0d9a8;
+			font-size:clamp(22px,2.6vw,40px); letter-spacing:.14em; text-transform:uppercase; line-height:1.35; }
+		#bip-idle .sub{ margin-top:14px; color:var(--bip-muted); font-size:clamp(13px,1.2vw,18px); letter-spacing:.08em; }
+		#bip-idle .cd{ margin-top:3vh; font-family:var(--bip-serif); color:var(--bip-gold-l);
+			font-size:clamp(44px,6vw,96px); line-height:1; }
+
+		@media (max-width:820px){
+			:root{ --bip-foot:58px; }
+			.bip-crumb{ letter-spacing:.2em; }
+			.bip-title{ letter-spacing:.14em; }
+			.bip-btn{ padding:7px 12px; font-size:10.5px; letter-spacing:.12em; }
+			.bip-btn b{ display:none; }
+			.bip-nav{ width:44px; height:44px; }
+		}
+	</style>
+</head>
+<body>
+		<!-- ==== BIP: sarlavha ==== -->
+	<div class="bip-bar bip-top">
+		<img class="bip-logo" src="../../images/logo.png" alt="">
+		<div class="bip-head-txt">
+			<div class="bip-crumb">IV &middot; <span id="bip-sec"></span></div>
+			<div class="bip-title" id="bip-short"></div>
+		</div>
+		<button class="bip-btn" id="bip-back" type="button">
+			<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg> <b id="bip-back-t"></b>
+		</button>
+	</div>
+<div id="tmpLoading" style="width: 100%; height: 100%; position: absolute; z-index: -2;background:#323232;"></div>
+	
+	<script type="text/javascript">
+	/* BIP: pleyer balandlikni window.innerHeight bo'yicha oladi — panellar joyini ayiramiz */
+	(function(){
+		var real = null;
+		function inset(){
+			var t = document.querySelector('.bip-top'), b = document.querySelector('.bip-bot');
+			var h = (t ? t.offsetHeight : 0) + (b ? b.offsetHeight : 0);
+			return h || (window.innerWidth <= 820 ? 110 : 128);
+		}
+		/* varaq ovozi: pleyerda faqat .ogg bor (Safari uni chalmaydi), shuning uchun
+		   saytdagi kabi WebAudio bilan qog'oz shitirlashini o'zimiz chiqaramiz */
+		try{
+			var AC = null;
+			/* Yumshoq varaq ovozi: keskin shovqin emas — sekin ko'tarilib, pastga tushadigan
+			   qog'oz shitirlashi. VOL — balandlik, DUR — davomiylik (sekund). */
+			var FLIP_VOL = 0.075, FLIP_DUR = 0.42;   /* balandlik va davomiylik */
+			function paperSound(){
+				try{
+					if (window.global && global.flipSoundIsPlaying === false) return;
+					AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+					if (AC.state === 'suspended') AC.resume();
+					var t0 = AC.currentTime, dur = FLIP_DUR, sr = AC.sampleRate;
+					var buf = AC.createBuffer(1, Math.floor(sr * dur), sr), ch = buf.getChannelData(0);
+					/* shovqin + sekin "hilpirash" (varaq qanoti) */
+					var prev = 0;
+					for (var i = 0; i < ch.length; i++){
+						var t = i / ch.length;
+						var n = Math.random() * 2 - 1;
+						prev = prev * 0.72 + n * 0.28;              /* biroz yumshatilgan shovqin */
+						var flutter = 1 + 0.22 * Math.sin(2 * Math.PI * 16 * t * (1 - 0.4 * t));
+						ch[i] = prev * flutter;
+					}
+					var s = AC.createBufferSource(); s.buffer = buf;
+
+					/* varaq yonidan o'tayotgandek: chastota avval ko'tarilib, keyin tushadi */
+					var bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.9;
+					bp.frequency.setValueAtTime(520, t0);
+					bp.frequency.linearRampToValueAtTime(1500, t0 + dur * 0.3);
+					bp.frequency.exponentialRampToValueAtTime(680, t0 + dur);
+
+					/* yuqori chiyillashni olib tashlaymiz — quloqqa yoqimli bo'lsin */
+					var lp = AC.createBiquadFilter(); lp.type = 'lowpass';
+					lp.frequency.setValueAtTime(3600, t0); lp.Q.value = 0.7;
+
+					/* yumshoq kirish va uzun so'nish — "chirt" etmasin */
+					var g = AC.createGain();
+					g.gain.setValueAtTime(0.0001, t0);
+					g.gain.linearRampToValueAtTime(FLIP_VOL, t0 + 0.07);
+					g.gain.exponentialRampToValueAtTime(FLIP_VOL * 0.55, t0 + dur * 0.45);
+					g.gain.exponentialRampToValueAtTime(0.0005, t0 + dur);
+
+					s.connect(bp); bp.connect(lp); lp.connect(g); g.connect(AC.destination);
+					s.start(t0); s.stop(t0 + dur);
+				}catch(e){}
+			}
+			/* pleyer varaqlaganda (tugma, surish, klaviatura) shu funksiyani chaqiradi */
+			Object.defineProperty(window, 'playFlipSound', {
+				configurable: true,
+				get: function(){ return function(){ paperSound(); }; },
+				set: function(){}
+			});
+		}catch(e){}
+
+		/* har doim bitta sahifa — ekran markazida (yoyma emas) */
+		try{
+			var cfg = null;
+			Object.defineProperty(window, 'bookConfig', {
+				configurable: true,
+				get: function(){ return cfg; },
+				set: function(v){
+					/* pleyer ba'zida oxirida bookConfig'ni bo'sh obyektga almashtiradi
+					   (albom_1/2 da shunday) — eng to'liq nusxani saqlab qolamiz */
+					if (!(v && typeof v === 'object' && Object.keys(v).length > 50)){
+						if (!cfg) cfg = v;
+						return;
+					}
+					try{
+						cfg = v;
+						if (v && typeof v === 'object'){
+							v.showDoublePage = 'single';
+							/* "mobil" rejimda pleyer sahifani 90° buradi va gorizontal surish o'rniga
+							   vertikalini kutadi; biz burilishni o'chirganmiz — rejimni ham o'chiramiz,
+							   aks holda barmoq bilan o'ngdan chapga surish ishlamaydi */
+							Object.defineProperty(v, 'upsideOnMobile', {
+								configurable: true,
+								get: function(){ return function(){ return false; }; },
+								set: function(){}
+							});
+						}
+					}catch(e){}
+				}
+			});
+		}catch(e){}
+		try{
+			Object.defineProperty(window, 'getHeight', {
+				configurable: true,
+				get: function(){
+					return function(){
+						var h = real ? real.call(window) : (window.innerHeight || 0);
+						return Math.max(200, h - inset());
+					};
+				},
+				set: function(v){ real = v; }
+			});
+		}catch(e){}
+	})();
+	</script>
+	<script type="text/javascript" src="javascript/config.js"></script>
+	
+	<script type="text/javascript" src="static/resourceFiles/html5_templates/js/LoadingJS.js"></script>
+	<script type="text/javascript" src="static/resourceFiles/html5_templates/template/Popular/resource_skeleton.js"></script>
+	<!-- ==== BIP: boshqaruv ==== -->
+	<div class="bip-bar bip-bot">
+		<button class="bip-btn bip-back-bot" id="bip-back2" type="button">
+			<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg> <b id="bip-back-t2"></b>
+		</button>
+		<button class="bip-nav" id="bip-prev" type="button" aria-label="Oldingi sahifa">
+			<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+		</button>
+		<div class="bip-count"><b id="bip-cur">1</b> / <span id="bip-total">417</span></div>
+		<button class="bip-nav" id="bip-next" type="button" aria-label="Keyingi sahifa">
+			<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+		</button>
+	</div>
+	<!-- ==== BIP: kiosk — harakatsizlikdan keyin bosh sahifaga ==== -->
+	<div id="bip-idle" hidden>
+		<div class="box">
+			<div class="msg" id="bip-idle-msg"></div>
+			<div class="sub" id="bip-idle-sub"></div>
+			<div class="cd"><span id="bip-idle-n">5</span></div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	/* 10 daqiqa harakatsizlikdan keyin — titul ekranga qaytamiz (saytdagi kabi) */
+	(function(){
+		var IDLE_MS = 600000, WARN_SEC = 5;
+		var TXT = {
+			msg:{uz:'Davom etish uchun ekranga teging',
+			     ru:'\u041a\u043e\u0441\u043d\u0438\u0442\u0435\u0441\u044c \u044d\u043a\u0440\u0430\u043d\u0430, \u0447\u0442\u043e\u0431\u044b \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c',
+			     en:'Touch the screen to continue'},
+			sub:{uz:'Aks holda ekran bosh sahifaga qaytadi',
+			     ru:'\u0418\u043d\u0430\u0447\u0435 \u044d\u043a\u0440\u0430\u043d \u0432\u0435\u0440\u043d\u0451\u0442\u0441\u044f \u043d\u0430 \u0433\u043b\u0430\u0432\u043d\u0443\u044e',
+			     en:'Otherwise the screen returns to the main page'}
+		};
+		var L = 'uz';
+		try{ var v = window.localStorage.getItem('bipLang'); if(v && TXT.msg[v]) L = v; }catch(e){}
+
+		var pop = document.getElementById('bip-idle'),
+		    popMsg = document.getElementById('bip-idle-msg'),
+		    popSub = document.getElementById('bip-idle-sub'),
+		    popNum = document.getElementById('bip-idle-n');
+		var last = Date.now(), warnLeft = 0;
+
+		function hideWarn(){ warnLeft = 0; if(pop) pop.hidden = true; }
+		function showWarn(){
+			if(popMsg) popMsg.textContent = TXT.msg[L];
+			if(popSub) popSub.textContent = TXT.sub[L];
+			warnLeft = WARN_SEC;
+			if(popNum) popNum.textContent = warnLeft;
+			if(pop) pop.hidden = false;
+		}
+		function everySecond(){
+			if(warnLeft > 0){
+				warnLeft--;
+				if(popNum) popNum.textContent = warnLeft;
+				if(warnLeft <= 0) window.location.href = '../../index.html';
+				return;
+			}
+			if(Date.now() - last >= IDLE_MS) showWarn();
+		}
+		function reset(){ last = Date.now(); if(warnLeft > 0) hideWarn(); }
+		['pointerdown','touchstart','touchmove','mousemove','wheel','keydown'].forEach(function(ev){
+			document.addEventListener(ev, reset, {passive:true});
+		});
+		setInterval(everySecond, 1000);
+		reset();
+	})();
+	</script>
+	<script type="text/javascript">
+	(function(){
+		var A = {"short": {"uz": "Yoʻl loyihalash — II", "ru": "Проектирование дорог — II", "en": "Road design — II"}, "title": {"uz": "Avtomobil yoʻllarini loyihalash. 2-qism", "ru": "Проектирование автомобильных дорог. Часть 2", "en": "Design of motor roads. Part 2"}, "total": 417};
+		var L = 'uz';
+		try{ var v = window.localStorage.getItem('bipLang'); if(v && A.short[v]) L = v; }catch(e){}
+		var T = {
+			sec:  {uz:'Kitoblar', ru:'\u041a\u043d\u0438\u0433\u0438', en:'Books'},
+			back: {uz:'Kitoblar', ru:'\u041a\u043d\u0438\u0433\u0438', en:'Books'}
+		};
+		function $(id){ return document.getElementById(id); }
+		$('bip-sec').textContent     = T.sec[L];
+		$('bip-back-t').textContent  = T.back[L];
+		$('bip-back-t2').textContent = T.back[L];
+		$('bip-short').textContent  = A.short[L];
+		document.title = A.title[L];
+
+		/* ortga: avval brauzer tarixi, bo'lmasa — albomlar javoni */
+		/* pleyer o'zi history'ga #p=... yozadi, shuning uchun history.back() emas —
+		   to'g'ridan-to'g'ri albomlar javoniga qaytamiz */
+		function goBooks(){ location.href = '../../4_foto-kinoxronika.html#books'; }
+		$('bip-back').addEventListener('click', goBooks);
+		$('bip-back2').addEventListener('click', goBooks);
+
+		/* varaqlash: pleynerning global funksiyalari */
+		function flip(dir){
+			try{
+				if (dir > 0 && typeof nextPageFun === 'function') nextPageFun('bip bar');
+				else if (dir < 0 && typeof previousPageFun === 'function') previousPageFun('bip bar');
+			}catch(e){}
+			setTimeout(sync, 60);
+		}
+		$('bip-prev').addEventListener('click', function(){ flip(-1); });
+		$('bip-next').addEventListener('click', function(){ flip(1); });
+
+		/* sahifa hisoblagichi */
+		var cur = $('bip-cur'), tot = $('bip-total'), prev = $('bip-prev'), next = $('bip-next');
+		function total(){
+			var n = 0;
+			try{ if (typeof totalPageCount === 'number') n = totalPageCount; }catch(e){}
+			/* pleyer toq sahifali kitobni juftlashtirish uchun bittaga to'ldiradi —
+			   haqiqiy sahifalar soni A.total, shuning uchun undan oshmaydi */
+			return n > 0 ? Math.min(n, A.total) : A.total;
+		}
+		function page(){
+			try{
+				if (window.BookInfo && typeof BookInfo.getCurrentPageIndex === 'function'){
+					var i = BookInfo.getCurrentPageIndex();
+					if (typeof i === 'number' && i >= 1) return i;
+				}
+			}catch(e){}
+			return null;
+		}
+		function sync(){
+			var n = total(), p = page();
+			tot.textContent = n;
+			if (p !== null){
+				if (cur.textContent !== String(p)) recenterSoon();
+				cur.textContent = p;
+				prev.disabled = p <= 1;
+				next.disabled = p >= n;
+			}
+		}
+		setInterval(sync, 350);
+		sync();
+
+		/* pleyer kitobni birinchi hisoblashda panellarni hisobga olmaydi —
+		   tayyor bo'lgach bir marta resize yuboramiz, u qayta markazlaydi */
+		function reveal(){ document.documentElement.classList.add('bip-ready'); }
+		var relaid = false;
+		function relayout(){
+			if (relaid || !document.querySelector('.book, #bookContainer .page')) return;
+			relaid = true;
+			var fire = function(){ window.dispatchEvent(new Event('resize')); };
+			fire(); recenter();
+			setTimeout(function(){ fire(); recenter(); }, 500);
+			setTimeout(function(){ recenter(); reveal(); }, 800);
+		}
+		var watch = setInterval(function(){ relayout(); if (relaid) clearInterval(watch); }, 120);
+		window.addEventListener('load', relayout);
+		setTimeout(reveal, 4000);   /* zaxira: nima bo'lganda ham ko'rsatamiz */
+
+		/* kitobni panellar orasidagi maydonning aniq markaziga tekislaymiz:
+		   pleyer o'z asboblar paneli uchun joy qoldiradi va kitob biroz pastda qoladi */
+		/* ko'rinib turgan sahifa/kitob to'rtburchagi (bir nechta ".book" bo'lishi mumkin) */
+		function bookRect(){
+			var els = document.querySelectorAll('#bookContainer .book, #page1, #bookContainer .page');
+			var best = null;
+			for (var i = 0; i < els.length; i++){
+				var b = els[i].getBoundingClientRect();
+				if (b.height > 50 && (!best || b.height > best.height)) best = b;
+			}
+			return best;
+		}
+		function recenter(){
+			var head = document.querySelector('.bip-top'), foot = document.querySelector('.bip-bot');
+			document.documentElement.style.setProperty('--bip-shift', '0px');
+			var r = bookRect();
+			if (!r) return;
+			var top = head ? head.offsetHeight : 0;
+			var bottom = window.innerHeight - (foot ? foot.offsetHeight : 0);
+			var dy = Math.round((top + bottom) / 2 - (r.top + r.bottom) / 2);
+			var gap = Math.round(bottom - 12 - (r.bottom + dy));   /* pastki panelga tegib ketmasin */
+			if (gap < 0) dy += gap;
+			if (Math.abs(dy) > 2 && Math.abs(dy) < 600)
+				document.documentElement.style.setProperty('--bip-shift', dy + 'px');
+		}
+		/* Sensorli panel + desktop UA: pleyer hodisalarni UA bo'yicha tanlaydi va faqat
+		   sichqoncha hodisalarini tinglaydi — barmoq bilan surish ishlamaydi.
+		   Shuning uchun surishni sichqoncha hodisalariga o'giramiz (bosish tegilmaydi). */
+		(function(){
+			var mouseMode = (window._event && window._event._down === 'mousedown');
+			var hasTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+			if (!mouseMode || !hasTouch) return;
+			var startX = 0, startY = 0, target = null, dragging = false;
+			function send(type, x, y, buttons){
+				var el = target || document.elementFromPoint(x, y) || document;
+				el.dispatchEvent(new MouseEvent(type, {
+					bubbles: true, cancelable: true, view: window,
+					clientX: x, clientY: y, button: 0, buttons: buttons
+				}));
+			}
+			document.addEventListener('touchstart', function(e){
+				if (e.touches.length !== 1) return;
+				target = e.target; dragging = false;
+				startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+			}, {passive: true});
+			document.addEventListener('touchmove', function(e){
+				if (e.touches.length !== 1 || !target) return;
+				var t = e.touches[0];
+				if (!dragging){
+					if (Math.abs(t.clientX - startX) < 8 && Math.abs(t.clientY - startY) < 8) return;
+					dragging = true;
+					send('mousedown', startX, startY, 1);   /* surish boshlangan nuqtadan */
+				}
+				send('mousemove', t.clientX, t.clientY, 1);
+			}, {passive: true});
+			document.addEventListener('touchend', function(e){
+				if (!dragging){ target = null; return; }
+				var t = e.changedTouches[0];
+				send('mouseup', t.clientX, t.clientY, 0);
+				if (e.cancelable) e.preventDefault();   /* keyingi "click" dublikat bo'lmasin */
+				dragging = false; target = null;
+			}, {passive: false});
+		})();
+
+		var reT;
+		function recenterSoon(){ clearTimeout(reT); reT = setTimeout(recenter, 260); }
+		window.addEventListener('resize', recenterSoon);
+		window.addEventListener('orientationchange', recenterSoon);
+	})();
+	</script>
+</body>
+
+</html>

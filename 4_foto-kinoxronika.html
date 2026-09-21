@@ -46,6 +46,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* oflayn albomdan qaytish (...#albums): hub umuman ko'rinmasin — birinchi kadrdanoq javon */
 html.start-albums #s-hub{opacity:0 !important; visibility:hidden !important}
 html.start-albums #s-albums{opacity:1 !important; visibility:visible !important; transform:none !important}
+html.start-books #s-hub{opacity:0 !important; visibility:hidden !important}
+html.start-books #s-books{opacity:1 !important; visibility:visible !important; transform:none !important}
 
 .topbar{display:flex; align-items:center; gap:18px; padding:26px 40px 0}
 .crumb{font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--muted)}
@@ -76,7 +78,9 @@ html.start-albums #s-albums{opacity:1 !important; visibility:visible !important;
 .rule{width:170px; height:1px; margin:26px auto 20px;
   background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .hub p.lead{max-width:660px; margin:0 auto; color:var(--muted); font-size:16px; line-height:1.8}
-.tiles{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:26px; margin-top:52px; width:min(1080px,92vw)}
+.tiles{display:grid; grid-template-columns:repeat(var(--tile-cols,4),minmax(0,1fr)); gap:26px; margin-top:52px; width:min(1340px,94vw)}
+/* toʻrtta boʻlim bitta qatorga sigʻmasa — 2x2 boʻlib joylashadi */
+@media (max-width:1100px){ .tiles{--tile-cols:2; width:min(760px,92vw)} }
 .tile{position:relative; background:linear-gradient(165deg,var(--panel2),var(--panel));
   border:1px solid var(--gold-dim); border-radius:22px; padding:38px 22px 30px;
   display:flex; flex-direction:column; align-items:center; gap:14px;
@@ -537,15 +541,18 @@ html.start-albums #s-albums{opacity:1 !important; visibility:visible !important;
 /* заголовок меню — белый, как и заголовки дочерних экранов */
 #s-hub h1{background:none; -webkit-background-clip:border-box; background-clip:border-box; color:#f5eee1}
 /* ---- заголовки дочерних экранов — в том же стиле, что и заголовок меню ---- */
+#s-books .shelf-head,
 #s-albums .shelf-head h2,
 #s-slides .shelf-head h2,
 #s-video .shelf-head h2{font-family:var(--serif); font-weight:500; text-transform:uppercase;
   font-size:clamp(38px,5.6vw,74px) !important; letter-spacing:.13em !important;
   color:#f5eee1; margin:0}
+#s-books .shelf-head,
 #s-albums .shelf-head p,
 #s-slides .shelf-head p,
 #s-video .shelf-head p{max-width:660px; margin:0 auto; color:var(--muted);
   font-size:16px !important; line-height:1.8; letter-spacing:normal}
+#s-books .shelf-head,
 #s-albums .shelf-head p::before,
 #s-slides .shelf-head p::before,
 #s-video .shelf-head p::before{content:""; display:block; width:170px; height:1px; margin:26px auto 20px;
@@ -588,62 +595,62 @@ html.start-albums #s-albums{opacity:1 !important; visibility:visible !important;
 
 /* ---- «Альбомы»: сетка по центру высоты, под ней свободная полоса ---- */
 /* шапка — вверху экрана, сетка центрируется в оставшейся высоте */
-#s-albums .shelf-head{margin-top:0}
+.sh-grid .shelf-head{margin-top:0}
 /* число колонок подбирает fitShelf() — чтобы все альбомы были видны без прокрутки */
 /* сетка занимает нижнюю половину: от середины экрана до нижних кнопок, без прокрутки */
-#s-albums{overflow:hidden; padding-bottom:var(--albums-pb); --content-top:45vh}
-#s-albums .books{position:absolute; left:0; right:0; top:var(--content-top); bottom:var(--albums-pb);
+.sh-grid{overflow:hidden; padding-bottom:var(--albums-pb); --content-top:45vh}
+.sh-grid .books{position:absolute; left:0; right:0; top:var(--content-top); bottom:var(--albums-pb);
   margin:0 auto; align-content:start;
   grid-template-columns:repeat(var(--cols,3),minmax(0,1fr))}
-#s-albums .books[data-filled]{align-content:space-between}
+.sh-grid .books[data-filled]{align-content:space-between}
 /* заголовок — по центру высоты верхней половины (между шапкой и сеткой) */
-#s-albums .shelf-head{position:absolute; left:0; right:0; margin:0 !important;
+.sh-grid .shelf-head{position:absolute; left:0; right:0; margin:0 !important;
   top:calc((var(--bip-head-h) + var(--content-top)) / 2); transform:translateY(-50%)}
 /* карточка всегда вертикальная: так в колонку помещается больше рядов */
-#s-albums .book-card{flex-direction:column; align-items:stretch}
-#s-albums .book-shell{flex:0 0 auto}
-#s-albums{--albums-pb:calc(3.4vh + var(--bip-home-h,74px) + 44px)}
+.sh-grid .book-card{flex-direction:column; align-items:stretch}
+.sh-grid .book-shell{flex:0 0 auto}
+.sh-grid{--albums-pb:calc(3.4vh + var(--bip-home-h,74px) + 44px)}
 /* ustunlar koʻpaygani sayin kartochka ixchamlashadi — 10+ albom ham bir ekranga sigʻadi */
-#s-albums .books[data-cols="4"]{--shelf-gap:26px; width:min(1460px,96vw)}
-#s-albums .books[data-cols="5"]{--shelf-gap:19px; width:min(1680px,97vw)}
-#s-albums .books[data-cols="4"] .book-card{gap:11px}
-#s-albums .books[data-cols="5"] .book-card{gap:9px}
-#s-albums .books[data-cols="4"] .book-meta h3{font-size:17px; margin:5px 0}
-#s-albums .books[data-cols="5"] .book-meta h3{font-size:15px; margin:4px 0; line-height:1.25}
-#s-albums .books[data-cols="4"] .book-meta .yr,
-#s-albums .books[data-cols="5"] .book-meta .yr{font-size:11px; letter-spacing:.3em}
+.sh-grid .books[data-cols="4"]{--shelf-gap:26px; width:min(1460px,96vw)}
+.sh-grid .books[data-cols="5"]{--shelf-gap:19px; width:min(1680px,97vw)}
+.sh-grid .books[data-cols="4"] .book-card{gap:11px}
+.sh-grid .books[data-cols="5"] .book-card{gap:9px}
+.sh-grid .books[data-cols="4"] .book-meta h3{font-size:17px; margin:5px 0}
+.sh-grid .books[data-cols="5"] .book-meta h3{font-size:15px; margin:4px 0; line-height:1.25}
+.sh-grid .books[data-cols="4"] .book-meta .yr,
+.sh-grid .books[data-cols="5"] .book-meta .yr{font-size:11px; letter-spacing:.3em}
 /* izoh matni eng koʻp joy oladi — ixcham holatda uni yashiramiz */
-#s-albums .books[data-cols="4"] .book-meta p,
-#s-albums .books[data-cols="5"] .book-meta p{display:none}
-#s-albums .books[data-cols="4"] .book-meta .pages{font-size:10.5px; padding:5px 12px}
-#s-albums .books[data-cols="5"] .book-meta .pages{font-size:10px; padding:4px 10px; letter-spacing:.16em}
+.sh-grid .books[data-cols="4"] .book-meta p,
+.sh-grid .books[data-cols="5"] .book-meta p{display:none}
+.sh-grid .books[data-cols="4"] .book-meta .pages{font-size:10.5px; padding:5px 12px}
+.sh-grid .books[data-cols="5"] .book-meta .pages{font-size:10px; padding:4px 10px; letter-spacing:.16em}
 /* muqova balandligini fitShelf() beradi — shunda barcha qatorlar ekranga sigʻadi */
-#s-albums .book-face img{height:var(--cover-h,auto)}
+.sh-grid .book-face img{height:var(--cover-h,auto)}
 /* sarlavha 2 qatordan oshmasin — qatorlar bir xil balandlikda qoladi */
-#s-albums .books[data-cols="4"] .book-meta h3,
-#s-albums .books[data-cols="5"] .book-meta h3{
+.sh-grid .books[data-cols="4"] .book-meta h3,
+.sh-grid .books[data-cols="5"] .book-meta h3{
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
 /* ixcham holatda sarlavha bloki va pastdagi zaxira ham qisqaradi */
-#s-albums[data-cols="4"] .shelf-head,
-#s-albums[data-cols="5"] .shelf-head{margin-bottom:14px}
-#s-albums[data-cols="4"] .shelf-head h2,
-#s-albums[data-cols="5"] .shelf-head h2{font-size:clamp(22px,2.3vw,32px)}
-#s-albums[data-cols="4"] .shelf-head p,
-#s-albums[data-cols="5"] .shelf-head p{font-size:12px}
-#s-albums[data-cols="4"],
-#s-albums[data-cols="5"]{--albums-pb:calc(2vh + var(--bip-home-h,74px) + 44px)}
+.sh-grid[data-cols="4"] .shelf-head,
+.sh-grid[data-cols="5"] .shelf-head{margin-bottom:14px}
+.sh-grid[data-cols="4"] .shelf-head h2,
+.sh-grid[data-cols="5"] .shelf-head h2{font-size:clamp(22px,2.3vw,32px)}
+.sh-grid[data-cols="4"] .shelf-head p,
+.sh-grid[data-cols="5"] .shelf-head p{font-size:12px}
+.sh-grid[data-cols="4"],
+.sh-grid[data-cols="5"]{--albums-pb:calc(2vh + var(--bip-home-h,74px) + 44px)}
 /* juda past ekran: yil va izoh olib tashlanadi, sarlavha bir qatorda qoladi */
-#s-albums .books[data-tight] .book-card{gap:7px}
-#s-albums .books[data-tight] .book-meta .yr{display:none}
-#s-albums .books[data-tight] .book-meta h3{-webkit-line-clamp:1; margin:2px 0}
-#s-albums .books[data-tight] .book-meta .pages{font-size:9.5px; padding:3px 9px}
+.sh-grid .books[data-tight] .book-card{gap:7px}
+.sh-grid .books[data-tight] .book-meta .yr{display:none}
+.sh-grid .books[data-tight] .book-meta h3{-webkit-line-clamp:1; margin:2px 0}
+.sh-grid .books[data-tight] .book-meta .pages{font-size:9.5px; padding:3px 9px}
 
 @media (max-aspect-ratio:1/1){
   /* в портрете у #bip-home свои размеры — повторяем их один в один */
   .screen .topbar .back{font-size:clamp(13px,1.8vw,22px);padding:1.2vh 5vw}
   /* в портрете полосу под кнопками резервируем сами — иначе последний ряд уходит под них */
-  #s-albums{--albums-pb:calc(3vh + var(--bip-home-h,74px) + 48px)}
-  #s-albums .topbar{order:-1; margin-top:0; padding:0 0 18px}
+  .sh-grid{--albums-pb:calc(3vh + var(--bip-home-h,74px) + 48px)}
+  .sh-grid .topbar{order:-1; margin-top:0; padding:0 0 18px}
   /* стрелки листания книги стояли на bottom:112px — ровно под кнопками.
      Поднимаем их над всей нижней полосой */
   .nav{bottom:3vh}
@@ -729,6 +736,7 @@ html.start-albums #s-albums{opacity:1 !important; visibility:visible !important;
 <script>
 /* birinchi kadrdayoq kerakli ekranni tanlaymiz — skript oxirida emas */
 if(location.hash==='#albums') document.documentElement.className+=' start-albums';
+if(location.hash==='#books')  document.documentElement.className+=' start-books';
 </script>
 </head>
 <body>
@@ -748,25 +756,39 @@ if(location.hash==='#albums') document.documentElement.className+=' start-albums
       <svg class="ico" viewBox="0 0 60 68"><path d="M8 8h20a6 6 0 0 1 6 6v46a6 6 0 0 0-6-6H8z"/><path d="M52 8H32a6 6 0 0 0-6 6v46a6 6 0 0 1 6-6h20z"/><path d="M30 14v46"/></svg>
       <div class="rn">IV · 1</div><h2 data-t="t_albums"></h2><small data-t="t_albums_s"></small>
     </button>
+    <button class="tile" data-go="books">
+      <svg class="ico" viewBox="0 0 60 68"><path d="M10 10h16a5 5 0 0 1 5 5v40a5 5 0 0 0-5-4H10z"/><path d="M50 10H34a5 5 0 0 0-5 5v40a5 5 0 0 1 5-4h16z"/><path d="M15 22h11M15 31h11M34 22h11M34 31h11"/></svg>
+      <div class="rn">IV · 2</div><h2 data-t="t_books"></h2><small data-t="t_books_s"></small>
+    </button>
     <button class="tile" data-go="slides">
       <svg class="ico" viewBox="0 0 60 68"><rect x="6" y="12" width="40" height="30" rx="3"/><rect x="14" y="22" width="40" height="30" rx="3"/><circle cx="26" cy="34" r="4"/><path d="M14 52l12-11 8 7 7-6 13 10"/></svg>
-      <div class="rn">IV · 2</div><h2 data-t="t_photo"></h2><small data-t="t_photo_s"></small>
+      <div class="rn">IV · 3</div><h2 data-t="t_photo"></h2><small data-t="t_photo_s"></small>
     </button>
     <button class="tile" data-go="video">
       <svg class="ico" viewBox="0 0 60 68"><rect x="6" y="18" width="36" height="28" rx="4"/><path d="M42 30l12-7v20l-12-7z"/><circle cx="15" cy="26" r="2"/><circle cx="15" cy="38" r="2"/></svg>
-      <div class="rn">IV · 3</div><h2 data-t="t_kino"></h2><small data-t="t_kino_s"></small>
+      <div class="rn">IV · 4</div><h2 data-t="t_kino"></h2><small data-t="t_kino_s"></small>
     </button>
   </div>
 </section>
 
 <!-- SHELF -->
-<section class="screen shelf" id="s-albums">
+<section class="screen shelf sh-grid" id="s-albums">
   <div class="topbar" style="padding:0 0 22px">
     <div class="crumb">IV · <span data-t="t_photo_c"></span> / <b data-t="t_albums"></b></div>
     <button class="back" data-go="hub"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg> <b data-t="back"></b></button>
   </div>
   <div class="shelf-head"><h2 data-t="shelf_h"></h2><p data-t="shelf_p"></p></div>
   <div class="books" id="books"></div>
+</section>
+
+<!-- KITOBLAR: javon (albomlar bilan bir xil uslubda) -->
+<section class="screen shelf sh-grid" id="s-books">
+  <div class="topbar" style="padding:0 0 22px">
+    <div class="crumb">IV · <span data-t="t_photo_c"></span> / <b data-t="t_books"></b></div>
+    <button class="back" data-go="hub"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg> <b data-t="back"></b></button>
+  </div>
+  <div class="shelf-head"><h2 data-t="books_h"></h2><p data-t="books_p"></p></div>
+  <div class="books" id="bookshelf"></div>
 </section>
 
 <!-- OPENER -->
@@ -902,12 +924,15 @@ function applyLang(){
   bipChrome(L);
   bipDock();
   const _n=ALBUMS.length, _p=ALBUMS.reduce((s,a)=>s+a.pages.length,0);
+  const _nb=(typeof BOOKS!=='undefined')?BOOKS.length:0;
+  const _pb=(typeof BOOKS!=='undefined')?BOOKS.reduce((s,b)=>s+b.pages,0):0;
   $$('[data-t]').forEach(el=>{ const k=el.dataset.t; if(UI[k])
-    el.textContent=t(UI[k]).replace('{n}',_n).replace('{p}',_p); });
+    el.textContent=t(UI[k]).replace('{nb}',_nb).replace('{pb}',_pb)
+                           .replace('{n}',_n).replace('{p}',_p); });
   $$('[data-lang] button').forEach(b=>b.classList.toggle('on', b.dataset.l===L));
   if($('#rd-zoom')) $('#rd-zoom').textContent = t(zoom?UI.unzoom:UI.zoom);
   if($('#ph-auto')) $('#ph-auto').textContent = t(autoTimer?UI.stop:UI.auto);
-  buildBooks(); buildChapters(); buildVideos();
+  buildBooks(); buildBookShelf(); buildChapters(); buildVideos();
   if($('#s-reader').classList.contains('on')) buildReader(curAlbum, cur);
   if($('#s-photo').classList.contains('on')) openEra(curEra, shot);
 }
@@ -951,6 +976,7 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-go]'); if(!b) return;
   show(b.dataset.go);
   if(b.dataset.go==='albums') revealShelf();
+  if(b.dataset.go==='books') revealBooks();
   if(b.dataset.go==='slides') revealChapters();
   if(b.dataset.go!=='photo') stopAuto();
 });
@@ -1097,9 +1123,57 @@ function buildBooks(){
     booksEl.appendChild(el);
   });
 }
+
+/* ---------- kitoblar: alohida boʻlim, albomlar javoni bilan bir uslubda ---------- */
+Object.assign(UI, {"t_books": {"uz": "Kitoblar", "ru": "Книги", "en": "Books"}, "t_books_s": {"uz": "{nb} ta kitob · {pb} sahifa", "ru": "Книг: {nb} · {pb} страниц", "en": "{nb} books · {pb} pages"}, "books_h": {"uz": "Kutubxona", "ru": "Библиотека", "en": "Library"}, "books_p": {"uz": "Kitobni tanlang — u ochiladi va sahifalab koʻrish mumkin", "ru": "Выберите книгу — она раскроется и её можно листать", "en": "Choose a book — it opens and can be leafed through"}, "to_books": {"uz": "Kitoblar", "ru": "Книги", "en": "Books"}});
+const BOOKS=[{"dir": "book_1", "pages": 417, "years": "", "short": {"uz": "Yoʻl loyihalash — II", "ru": "Проектирование дорог — II", "en": "Road design — II"}, "title": {"uz": "Avtomobil yoʻllarini loyihalash. 2-qism", "ru": "Проектирование автомобильных дорог. Часть 2", "en": "Design of motor roads. Part 2"}, "sub": {"uz": "V. F. Babkov, O. V. Andreev.", "ru": "В. Ф. Бабков, О. В. Андреев.", "en": "V. F. Babkov, O. V. Andreev."}}, {"dir": "book_2", "pages": 218, "years": "1985", "short": {"uz": "NIIAT maʼlumotnomasi", "ru": "Справочник НИИАТ", "en": "NIIAT handbook"}, "title": {"uz": "Qisqacha avtomobil maʼlumotnomasi (NIIAT)", "ru": "Краткий автомобильный справочник НИИАТ", "en": "Concise motor-vehicle handbook (NIIAT)"}, "sub": {"uz": "Oʻninchi nashr. Moskva, «Transport», 1985.", "ru": "Издание десятое. Москва, «Транспорт», 1985.", "en": "Tenth edition. Moscow, Transport, 1985."}}, {"dir": "book_3", "pages": 241, "years": "1989", "short": {"uz": "Mashinalar avtomatikasi", "ru": "Автоматизация машин", "en": "Machine automation"}, "title": {"uz": "Qurilish mashinalari ishini avtomatlashtirish", "ru": "Автоматизация работы строительных машин", "en": "Automation of construction machinery"}, "sub": {"uz": "V. I. Sidorov. Moskva, «Stroyizdat», 1989.", "ru": "В. И. Сидоров. Москва, Стройиздат, 1989.", "en": "V. I. Sidorov. Moscow, Stroyizdat, 1989."}}, {"dir": "book_4", "pages": 350, "years": "", "short": {"uz": "Maʼmuriy boʻlinish", "ru": "Административное деление", "en": "Administrative division"}, "title": {"uz": "Oʻzbekiston SSR maʼmuriy-hududiy boʻlinishi", "ru": "Узбекская ССР: административно-территориальное деление", "en": "Uzbek SSR: administrative-territorial division"}, "sub": {"uz": "Maʼlumotnoma — oʻzbek va rus tillarida.", "ru": "Справочник — на узбекском и русском языках.", "en": "A reference volume in Uzbek and Russian."}}, {"dir": "book_5", "pages": 200, "years": "", "short": {"uz": "Yoʻl boʻyi koʻkalamzori", "ru": "Зелёные насаждения", "en": "Roadside greenery"}, "title": {"uz": "Avtomobil yoʻllarida koʻkalamzorlashtirish", "ru": "Зелёные насаждения на автомобильных дорогах", "en": "Green plantings along motor roads"}, "sub": {"uz": "D. F. Yuximchuk. «Naukova dumka».", "ru": "Д. Ф. Юхимчук. «Наукова думка».", "en": "D. F. Yukhimchuk, Naukova Dumka."}}];
+/* har bir kitob — FlipHTML5 ning oflayn nusxasi (books/ papkasi),
+   muqova sifatida kitobning birinchi sahifasi koʻrsatiladi */
+const bookshelfEl=$('#bookshelf');
+function buildBookShelf(){
+  if(!bookshelfEl) return;
+  bookshelfEl.innerHTML='';
+  BOOKS.forEach((a,ai)=>{
+    const el=document.createElement('button');
+    el.className='book-card'; el.style.setProperty('--i',ai);
+    const cover=`books/${a.dir}/cover.jpg`;
+    el.innerHTML=`<div class="book-shell"><div class="book-face"><span class="spine"></span>
+        <img src="${cover}" alt="" loading="lazy"><span class="sheen"></span></div></div>
+      <div class="book-meta"><div class="yr">${a.years}</div><h3>${t(a.title)}</h3>
+        <p>${t(a.sub)}</p><div class="pages">${a.pages} ${t(UI.pages)}</div></div>`;
+    /* albomlardagi kabi: faqat haqiqiy bosishda ochamiz, surishda emas */
+    let downX=0, downY=0, pressed=false, dragged=false;
+    el.addEventListener('click',()=>{
+      if(dragged){ dragged=false; return; }
+      openAlbumLink(`books/${a.dir}/index.html`);
+    });
+    const shell=el.querySelector('.book-shell'), face=el.querySelector('.book-face');
+    el.addEventListener('pointerdown',ev=>{
+      pressed=true; dragged=false; downX=ev.clientX; downY=ev.clientY;
+      el.classList.add('press');
+    });
+    el.addEventListener('pointermove',ev=>{
+      if(pressed && (Math.abs(ev.clientX-downX)>10 || Math.abs(ev.clientY-downY)>10)) dragged=true;
+      if(ev.pointerType && ev.pointerType!=='mouse') return;
+      const r=face.getBoundingClientRect();
+      const dx=(ev.clientX-r.left)/r.width-0.5, dy=(ev.clientY-r.top)/r.height-0.5;
+      shell.style.transform=`rotateY(${(dx*20).toFixed(2)}deg) rotateX(${(-dy*11).toFixed(2)}deg) translateZ(22px)`;
+      face.style.setProperty('--mx',((dx+0.5)*100).toFixed(1)+'%');
+      face.style.setProperty('--my',((dy+0.5)*100).toFixed(1)+'%');
+    });
+    el.addEventListener('pointercancel',()=>{ dragged=true; });
+    el.addEventListener('pointerleave',()=>{ shell.style.transform=''; });
+    ['pointerup','pointercancel','pointerleave'].forEach(ev=>el.addEventListener(ev,()=>{
+      pressed=false; el.classList.remove('press');
+      if(ev!=='pointerleave') shell.style.transform='';
+    }));
+    bookshelfEl.appendChild(el);
+  });
+}
 /* barcha albomlar bir ekranga sigʻishi uchun ustunlar sonini tanlaymiz */
-function fitShelf(){
-  const sc=$('#s-albums'); const n=booksEl.children.length;
+function fitShelf(sc,booksEl){
+  sc=sc||$('#s-albums'); booksEl=booksEl||$('#books');
+  const n=booksEl?booksEl.children.length:0;
   if(!sc || !n) return;
   /* setka ekranning pastki yarmini egallaydi — balandligi CSS'da belgilangan */
   const room=()=>booksEl.clientHeight;
@@ -1161,16 +1235,23 @@ function fitShelf(){
   /* qatorlar yuqoridan (ekran oʻrtasi) pastgacha taqsimlanadi */
   if(Math.ceil(n/(parseInt(booksEl.dataset.cols,10)||1))>1) booksEl.dataset.filled='1';
 }
-window.addEventListener('resize',fitShelf);
+/* ikkala javon ham (albomlar va kitoblar) bir xil oʻlchamga solinadi */
+function fitAllShelves(){
+  fitShelf($('#s-albums'), $('#books'));
+  fitShelf($('#s-books'), $('#bookshelf'));
+}
+window.addEventListener('resize',fitAllShelves);
 
-function revealShelf(){
-  const sh=$('#s-albums');
+function revealShelf(secId,gridId){
+  const sh=$(secId||'#s-albums'), grid=$(gridId||'#books');
+  if(!sh||!grid) return;
   sh.classList.remove('ready');
-  $$('.book-card').forEach(c=>c.querySelector('.book-shell').style.transform='');
-  fitShelf();
+  grid.querySelectorAll('.book-card').forEach(c=>c.querySelector('.book-shell').style.transform='');
+  fitShelf(sh,grid);
   void sh.offsetWidth;
   requestAnimationFrame(()=>requestAnimationFrame(()=>sh.classList.add('ready')));
 }
+function revealBooks(){ revealShelf('#s-books','#bookshelf'); }
 
 /* ---------- ochilish: javondan markazga uchadi, keyin muqova ochiladi ---------- */
 const opener=$('#opener'), opBook=$('#opBook');
@@ -1544,6 +1625,10 @@ function bipOpenFromHash(){
   if(location.hash==='#albums'){
     show('albums'); revealShelf();
     requestAnimationFrame(()=>document.documentElement.classList.remove('start-albums'));
+  }
+  if(location.hash==='#books'){
+    show('books'); revealBooks();
+    requestAnimationFrame(()=>document.documentElement.classList.remove('start-books'));
   }
 }
 bipOpenFromHash();

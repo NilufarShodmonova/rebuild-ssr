@@ -1,1 +1,4 @@
 ssr.zip
+# kitoblar: faqat book_1 saqlanadi, qolganlari kiosk'ga qo'lda ko'chiriladi
+books/*
+!books/book_1
