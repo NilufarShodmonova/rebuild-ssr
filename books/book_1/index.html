@@ -198,6 +198,56 @@
 	<script type="text/javascript">
 	/* BIP: pleyer balandlikni window.innerHeight bo'yicha oladi — panellar joyini ayiramiz */
 	(function(){
+		/* ——— Sensorli panelda pleyerni "mobil" rejimga o'tkazmaymiz ———
+		   Pleyer qurilma turini o'zining _agent_ obyekti bo'yicha aniqlaydi:
+		     isTouch = (_agent_.browser.device == DEVICE_PHONE) || isPad()
+		   Sensorli kiosk PAD deb topiladi va pleyer telefon/planshet joylashuviga
+		   o'tadi: kitobni butun oynaga cho'zadi, bizning getHeight() o'lchamimizni
+		   hisobga olmaydi. Natijada kitob ekranni to'ldiradi va varaqlaganda
+		   sakraydi. _event (sichqoncha/sensor hodisalari) ham aynan shu qiymatdan
+		   hisoblanadi va book.min.js yuklangan zahoti bir marta belgilanadi —
+		   shuning uchun _agent_ o'rnatilayotgan paytda uni ushlab, qurilmani
+		   "PC" deb ko'rsatamiz. Barmoq bilan varaqlash pastdagi "touch -> mouse"
+		   o'girgichi orqali ishlaydi. */
+		try{
+			window.__BIP_REAL_TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+			var agentVal;
+			/* _agent_ avval bo'sh obyekt sifatida o'rnatiladi va .browser keyin
+			   to'ldiriladi — shuning uchun faqat o'zlashtirish paytida tuzatish
+			   yetarli emas. Har o'qishda ham tekshiramiz: pleyer qurilma turini
+			   aynan o'qiyotgan paytda "PC" ni ko'radi. */
+			function bipForcePC(v){
+				try{
+					var b = v && v.browser;
+					if (b && typeof b.DEVICE_PC !== 'undefined' && !b.__bipPatched){
+						b.__bipPatched = true;
+						Object.defineProperty(b, 'device', {
+							configurable: true,
+							get: function(){ return b.DEVICE_PC; },
+							set: function(){}
+						});
+					}
+					var sys = v && v.system;
+					if (sys && typeof sys.ANDROID !== 'undefined' && !sys.__bipPatched){
+						sys.__bipPatched = true;
+						Object.defineProperty(sys, 'name', {
+							configurable: true,
+							get: function(){ return sys.WINDOWS !== undefined ? sys.WINDOWS : 'Windows'; },
+							set: function(){}
+						});
+					}
+				}catch(e){}
+			}
+			Object.defineProperty(window, '_agent_', {
+				configurable: true,
+				get: function(){ bipForcePC(agentVal); return agentVal; },
+				set: function(v){
+					agentVal = v;
+					bipForcePC(v);
+				}
+			});
+		}catch(e){}
+
 		var real = null;
 		function inset(){
 			var t = document.querySelector('.bip-top'), b = document.querySelector('.bip-bot');
@@ -293,13 +343,35 @@
 		   balandlikka moslaydi, shuning uchun balandlikni ataylab kichraytiramiz.
 		   BOOK_SCALE — kitobning ekranga nisbatan kattaligi (0.69 => taxminan yarmi). */
 		var BOOK_SCALE = 0.69;
+		/* Yoyilgan kitob (ikki sahifa) eni bo'yicha cheklanadi, yolg'iz muqova esa
+		   balandligi bo'yicha — shuning uchun muqova yoyilgan sahifalardan ancha
+		   balandroq chiqadi va birinchi varaqlashda kitob "sakrab" pastga tushadi.
+		   Shuning uchun balandlikni yoyilgan kitob egallay oladigan balandlikdan
+		   oshirmaymiz: shunda muqova ham, ichki sahifalar ham bir xil o'lchamda. */
+		/* A4 nisbati (1:1.414) — barcha kitoblar uchun umumiy o'lchov tayanchi. */
+		var REF_RATIO = 1 / Math.SQRT2;   /* ~0.707 */
+		function spreadCap(){
+			try{
+				var cfg = window.bookConfig || {};
+				var pw = parseFloat(cfg.largePageWidth), ph = parseFloat(cfg.largePageHeight);
+				var ratio = (pw > 0 && ph > 0) ? (pw / ph) : REF_RATIO;
+				/* Nisbatni A4 dan tor kitoblarda ham A4 bo'yicha hisoblaymiz: aks holda
+				   tor sahifali kitob (1- va 2-kitob) boshqalardan ancha katta bo'lib
+				   ko'rinadi. Kengroq kitobda esa o'zining nisbati olinadi — shunda
+				   yoyilgan kitob eniga sig'maay qolmaydi. */
+				ratio = Math.max(ratio, REF_RATIO);
+				/* pleyer kitob chetida biroz joy qoldiradi */
+				var w = (window.innerWidth || 0) * 0.94;
+				return w / (2 * ratio);
+			}catch(e){ return Infinity; }
+		}
 		try{
 			Object.defineProperty(window, 'getHeight', {
 				configurable: true,
 				get: function(){
 					return function(){
 						var h = real ? real.call(window) : (window.innerHeight || 0);
-						return Math.max(200, Math.round((h - inset()) * BOOK_SCALE));
+						return Math.max(200, Math.round(Math.min((h - inset()) * BOOK_SCALE, spreadCap())));
 					};
 				},
 				set: function(v){ real = v; }
@@ -434,13 +506,19 @@
 			var n = total(), p = page();
 			tot.textContent = n;
 			if (p !== null){
-				if (cur.textContent !== String(p)) recenterSoon();
+				/* Sahifa almashganda kitobni QAYTA markazlamaymiz. Muqova ham,
+				   yoyilgan sahifalar ham endi bir xil balandlikda (getHeight()
+				   yoyilgan kitob balandligi bilan cheklangan), shuning uchun
+				   siljish o'zgarmaydi. Har varaqlashda qayta hisoblash esa
+				   varaqlash animatsiyasi paytida o'lchov olib, noto'g'ri qiymat
+				   berardi va kitob sakrab, keyin joyiga tushardi. */
 				cur.textContent = p;
 				prev.disabled = p <= 1;
 				next.disabled = p >= n;
 			}
 		}
 		setInterval(sync, 350);
+		setInterval(recenterIfStable, 400);
 		sync();
 
 		/* pleyer kitobni birinchi hisoblashda panellarni hisobga olmaydi —
@@ -514,23 +592,45 @@
 		}
 		function recenter(){
 			var head = document.querySelector('.bip-top'), foot = document.querySelector('.bip-bot');
-			document.documentElement.style.setProperty('--bip-shift', '0px');
+			/* MUHIM: siljishni oldindan nolga tushirmaymiz. Ilgari shunday qilinardi va
+			   varaqlash paytida bookRect() hech narsa topmay qaytib ketsa, siljish 0
+			   bo'lib qolardi — kitob pastga tushib, keyin qaytadan markazga chiqardi.
+			   Endi joriy siljishni hisobga olib, yangi qiymatni hisoblaymiz va faqat
+			   haqiqiy o'lchov bo'lgandagina yozamiz. */
 			var r = bookRect();
-			if (!r) return;
+			if (!r) return;                     /* o'lchov yo'q — kitob joyida qolsin */
+			var cur = parseFloat(getComputedStyle(document.documentElement)
+				.getPropertyValue('--bip-shift')) || 0;
 			var top = head ? head.offsetHeight : 0;
 			var bottom = window.innerHeight - (foot ? foot.offsetHeight : 0);
-			var dy = Math.round((top + bottom) / 2 - (r.top + r.bottom) / 2);
-			var gap = Math.round(bottom - 12 - (r.bottom + dy));   /* pastki panelga tegib ketmasin */
-			if (gap < 0) dy += gap;
-			if (Math.abs(dy) > 2 && Math.abs(dy) < 600)
-				document.documentElement.style.setProperty('--bip-shift', dy + 'px');
+			/* r joriy siljish bilan o'lchangan — uni ayirib, "siljishsiz" holatga keltiramiz */
+			var bookCenter = (r.top + r.bottom) / 2 - cur;
+			var shift = Math.round((top + bottom) / 2 - bookCenter);
+			/* pastki panelga tegib ketmasin */
+			var gap = Math.round(bottom - 12 - (r.bottom - cur + shift));
+			if (gap < 0) shift += gap;
+			if (Math.abs(shift) < window.innerHeight && Math.abs(shift - cur) > 1)
+				document.documentElement.style.setProperty('--bip-shift', shift + 'px');
+		}
+		/* Markazlashni o'zi tekshirib turadi, lekin faqat kitob "tinch" turganda:
+		   varaqlash paytida o'lcham o'zgarib turadi va o'sha paytdagi o'lchov
+		   noto'g'ri qiymat berardi (kitob sakrardi). Ikki o'lchovda o'lcham bir xil
+		   bo'lsa — varaqlash tugagan, shunda qayta hisoblaymiz. Qiymat to'g'ri
+		   bo'lsa o'zgarmaydi, shuning uchun hech narsa qimirlamaydi. */
+		var lastShape = '';
+		function shapeOf(r){ return r ? Math.round(r.width) + 'x' + Math.round(r.height) : ''; }
+		function recenterIfStable(){
+			var k = shapeOf(bookRect());
+			if (k && k === lastShape) recenter();
+			lastShape = k;
 		}
 		/* Sensorli panel + desktop UA: pleyer hodisalarni UA bo'yicha tanlaydi va faqat
 		   sichqoncha hodisalarini tinglaydi — barmoq bilan surish ishlamaydi.
 		   Shuning uchun surishni sichqoncha hodisalariga o'giramiz (bosish tegilmaydi). */
 		(function(){
 			var mouseMode = (window._event && window._event._down === 'mousedown');
-			var hasTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+			/* sensor borligini pleyerdan yashirganmiz — haqiqiy qiymatni eslab qolgandik */
+			var hasTouch = !!window.__BIP_REAL_TOUCH;
 			if (!mouseMode || !hasTouch) return;
 			var startX = 0, startY = 0, target = null, dragging = false;
 			function send(type, x, y, buttons){
