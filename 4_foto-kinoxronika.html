@@ -538,6 +538,34 @@ html.start-books #s-books{opacity:1 !important; visibility:visible !important; t
   #s-hub{padding-bottom:calc(3vh + var(--bip-home-h,74px) + 32px)}
   #s-hub .tiles{padding-bottom:0}
 }
+/* surat nomi — rasm ustida emas, rasm ostida: fon va soyasiz, rasmni yopmaydi */
+#s-photo .shot{display:flex; flex-direction:column}
+#s-photo .shot .ph,
+#s-photo .shot.portrait .ph{position:relative; inset:auto; flex:1 1 auto; min-height:0; padding:0}
+#s-photo .shot .ph img{position:absolute; top:16px; bottom:0; left:3.2%; width:93.6%; height:calc(100% - 16px); box-shadow:none}
+#s-photo .shot .cap,
+#s-photo .shot.portrait .cap{position:relative; inset:auto; flex:0 0 auto; max-width:none;
+  margin:0 auto; padding:14px 30px 16px; text-align:center;
+  background:none; -webkit-backdrop-filter:none; backdrop-filter:none;
+  border:0; border-radius:0; box-shadow:none; transform:translateY(8px)}
+#s-photo .shot.on .cap,
+#s-photo .shot.portrait.on .cap{transform:none}
+#s-photo .cap .n{margin-bottom:6px}
+#s-photo .cap h3{margin:0 0 4px}
+#s-photo .cap p{max-width:900px; margin:0 auto}
+@media (max-aspect-ratio:1/1){
+  #s-photo .shot .cap,
+  #s-photo .shot.portrait .cap{padding:10px 20px 12px}
+  #s-photo .cap h3{font-size:20px}
+  #s-photo .cap p{font-size:13px; line-height:1.5}
+}
+/* меню: заголовок и плитки — одной группой по центру экрана, без пустоты между ними */
+#s-hub{justify-content:center}
+#s-hub .hub-head{position:static; transform:none; flex:none}
+#s-hub .tiles{position:static; margin:clamp(36px,5vh,64px) auto 0; padding-bottom:0}
+@media (max-aspect-ratio:1/1){
+  #s-hub{padding-top:calc(var(--bip-head-h) + 2vh)}
+}
 /* заголовок меню — белый, как и заголовки дочерних экранов */
 #s-hub h1{background:none; -webkit-background-clip:border-box; background-clip:border-box; color:#f5eee1}
 /* ---- заголовки дочерних экранов — в том же стиле, что и заголовок меню ---- */
@@ -1205,6 +1233,10 @@ function fitShelf(sc,booksEl){
   sc=sc||$('#s-albums'); booksEl=booksEl||$('#books');
   const n=booksEl?booksEl.children.length:0;
   if(!sc || !n) return;
+  /* setka sarlavhadan keyin boshlanadi — bo'sh joy ko'proq, oxirida guruh markazlanadi */
+  const head=sc.querySelector('.shelf-head');
+  groupReset(head,booksEl);
+  booksEl.style.top=groupArea(sc,head).gridTop+'px';
   /* setka ekranning pastki yarmini egallaydi — balandligi CSS'da belgilangan */
   const room=()=>booksEl.clientHeight;
   /* kontent balandligi (setka qat'iy balandlikda, scrollHeight yetarli emas) */
@@ -1269,8 +1301,31 @@ function fitShelf(sc,booksEl){
     booksEl.dataset.tight='1';
     fitCovers();
   }
-  /* qatorlar yuqoridan (ekran oʻrtasi) pastgacha taqsimlanadi */
-  if(Math.ceil(n/(parseInt(booksEl.dataset.cols,10)||1))>1) booksEl.dataset.filled='1';
+  /* sarlavha va setka — bir guruh, ekran markazida */
+  groupCenter(sc,head,booksEl,contentH());
+}
+
+/* ---- sarlavha + setka: shapka va pastki tugmalar orasida, markazda ---- */
+function groupGap(){ return Math.round(Math.min(56,Math.max(24,innerHeight*.03))); }
+function groupReset(head,grid){
+  ['top','bottom','height','transform'].forEach(k=>{ head.style[k]=''; grid.style[k]=''; });
+  grid.style.gridAutoRows='';
+}
+function groupArea(sc,head){
+  const top0=sc.getBoundingClientRect().top;
+  const cr=sc.querySelector('.crumb'), r=cr&&cr.getBoundingClientRect();
+  const hb=$('#bip-head'), hr=hb&&hb.getBoundingClientRect();
+  const areaTop=Math.max(r&&r.height?r.bottom+12:0, hr?hr.bottom+12:0)-top0;
+  return {top0, areaTop, gridTop:areaTop+head.offsetHeight+groupGap()};
+}
+function groupCenter(sc,head,grid,h){
+  const a=groupArea(sc,head);
+  const areaBottom=grid.getBoundingClientRect().bottom-a.top0;
+  const total=head.offsetHeight+groupGap()+h;
+  const start=a.areaTop+Math.max(0,(areaBottom-a.areaTop-total)/2);
+  head.style.top=start+'px'; head.style.transform='none';
+  grid.style.top=(start+head.offsetHeight+groupGap())+'px';
+  grid.style.bottom='auto'; grid.style.height=h+'px';
 }
 /* ikkala javon ham (albomlar va kitoblar) bir xil oʻlchamga solinadi */
 function fitAllShelves(){
@@ -1552,7 +1607,23 @@ function buildChapters(){
     chGrid.appendChild(b);
   });
 }
+/* yillar kartochkalari: qator balandligi kartochka eniga mos, guruh markazda */
+function fitChapters(){
+  const sc=$('#s-slides'), head=sc&&sc.querySelector('.shelf-head'), box=$('#chapters');
+  if(!sc||!head||!box||!chGrid.children.length) return;
+  groupReset(head,box); groupReset(head,chGrid);
+  box.style.top=groupArea(sc,head).gridTop+'px';
+  const n=chGrid.children.length;
+  const cs=getComputedStyle(chGrid);
+  const cols=cs.gridTemplateColumns.split(' ').length||1, rows=Math.ceil(n/cols);
+  const gap=parseFloat(cs.rowGap)||0, colW=chGrid.children[0].offsetWidth;
+  const rowH=Math.floor(Math.min(colW*.72, (box.clientHeight-gap*(rows-1))/rows));
+  chGrid.style.gridAutoRows=rowH+'px'; chGrid.style.height='auto';
+  groupCenter(sc,head,box,rows*rowH+gap*(rows-1));
+}
+window.addEventListener('resize',fitChapters);
 function revealChapters(){
+  fitChapters();
   const c=$('#chapters'); c.classList.remove('ready'); void c.offsetWidth;
   requestAnimationFrame(()=>requestAnimationFrame(()=>c.classList.add('ready')));
 }
