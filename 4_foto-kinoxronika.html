@@ -690,7 +690,7 @@ html.start-books #s-books{opacity:1 !important; visibility:visible !important; t
 }
 
 /* ---- kitoblar javoni: muqova tik (portret), butun balandligi bo'yicha ko'rinadi ---- */
-#s-books .books{--cover-ratio:1.5}
+#s-books .books{--cover-ratio:1.5; --cover-scale:.68}
 /* muqova rasmi kesilmaydi: balandligi bo'yicha to'liq, eni o'zi bo'yicha */
 #s-books .book-face{width:-moz-max-content; width:max-content; max-width:100%; margin:0 auto}
 #s-books .book-face img{width:auto; max-width:100%; height:var(--cover-h,auto);
@@ -1287,6 +1287,9 @@ function fitShelf(sc,booksEl){
     const ratio=parseFloat(getComputedStyle(booksEl).getPropertyValue('--cover-ratio'))||(1169/1700);
     const natural=Math.floor(colW*ratio);
     let h=Math.min(natural, Math.floor((availH-gap*(rows-1))/rows-extra));
+    /* javon muqovani kichraytirishi mumkin: --cover-scale (kitoblar uchun) */
+    const scale=parseFloat(getComputedStyle(booksEl).getPropertyValue('--cover-scale'))||1;
+    h=Math.floor(h*scale);
     if(h<MINCOVER) return false;
     booksEl.style.setProperty('--cover-h', h+'px');
     /* sarlavha qisqarishi bilan balandlik o'zgaradi — bir marta aniqlashtiramiz */

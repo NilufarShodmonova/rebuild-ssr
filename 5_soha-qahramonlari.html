@@ -473,6 +473,76 @@ body.light #dots i.on{background:#a97c2c}
 @media (max-aspect-ratio:1/1){
   #bip-nav{padding:0 5vw}
 }
+
+/* ================= нижний блок на 50px выше =================
+   кнопка «на главную», точки, стрелки и низ слайда — все от --bip-bottom */
+:root{--bip-bottom:calc(3vh + 50px)}
+
+/* ================= содержимое слайда — одной группой по центру =================
+   картинка, заголовок и текст идут подряд, без пустоты между ними;
+   группа центрируется по высоте слайда, текст — по ширине.
+   Если текст длинный, картинка уменьшается (min-height:0) */
+.sl:has(>.vis.portal),.sl:has(>.mach),.sl:has(>.hero){
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2vh;padding:2vh 0;
+  background:radial-gradient(120% 100% at 50% 18%,#16283f,#080e18)}
+.sl:has(>.vis.portal)>.era,.sl:has(>.mach)>.era,.sl:has(>.hero)>.era{
+  position:relative;left:auto;top:auto;flex:0 0 auto;text-align:center}
+.sl:has(>.vis.portal)>.cap,.sl:has(>.mach) .cap,.sl:has(>.hero) .cap{
+  position:relative;left:auto;right:auto;bottom:auto;flex:0 0 auto;width:100%;
+  padding:0 7vw;text-align:center}
+.sl:has(>.vis.portal)>.cap p,.sl:has(>.mach) .cap p,.sl:has(>.hero) .cap p{margin:0 auto}
+.sl:has(>.vis.portal)>.cr,.sl:has(>.mach)>.cr{
+  position:relative;right:auto;bottom:auto;flex:0 0 auto;max-width:86vw;text-align:center}
+
+/* фото в арке */
+.sl>.vis.portal{position:relative;inset:auto;flex:0 1 58%;min-height:0;width:92%;
+  background:none;overflow:visible}
+.sl>.vis.portal img{position:relative;left:auto;top:auto;width:100%;height:100%}
+
+/* техника: обёртка .mach растворяется, её части — прямо в колонке слайда */
+.sl>.mach{display:contents}
+.mach .art,.mach .meta,.mach .specs{position:relative;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important}
+.mach .art{flex:0 1 58%;min-height:0;width:92%;height:auto}
+.mach.has-specs .art{flex-basis:46%;height:auto}
+.mach .meta{flex:0 0 auto;width:100%}
+.mach .specs{flex:0 0 auto;width:100%}
+
+/* герои: портрет, год на его нижней кромке, имя, текст, подпись */
+.sl>.hero{display:contents}
+.hero .art,.hero .yr,.hero .who,.hero .sig{position:relative;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important}
+.hero .art{flex:0 1 52%;min-height:0;width:60%;height:auto}
+.hero .yr{flex:0 0 auto;margin:calc(-2vh - 1.1em) auto 0}
+.hero .who{flex:0 0 auto;width:100%}
+.hero .sig{flex:0 0 auto}
+
+/* большое число на фото: число и подпись — вместе по центру */
+.num{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4vh}
+.num .big{position:relative;top:auto;left:auto;right:auto;width:100%}
+.num .cap{position:relative;bottom:auto;left:auto;right:auto;width:100%;text-align:center}
+.num .cap p{margin:0 auto}
+
+/* метка раздела на слайде с числом — по центру, как и остальной текст */
+.sl:has(>.num)>.era{left:0;right:0;text-align:center}
+.sl:has(>.num)>.cr{left:0;right:0;max-width:none;text-align:center}
+/* схемы: схема и подпись — вместе по центру */
+.fig{justify-content:center}
+.fig .art{flex:0 1 auto}
+.fig .cap{text-align:center}
+.fig .cap p{margin:0 auto}
+.gal .cap{text-align:center}
+.gal .cap p{margin:0 auto}
+
+@media (max-aspect-ratio:1/1){
+  .hero .art{width:78%;flex-basis:48%}
+  .mach.has-specs .art{flex-basis:44%}
+}
+@media (min-aspect-ratio:1/1){
+  .sl>.vis.portal{width:48%;flex-basis:66%}
+  .mach .art{width:48%;flex-basis:62%}
+  .mach.has-specs .art{flex-basis:50%}
+  .hero .art{width:26%;flex-basis:56%}
+}
 </style>
 </head>
 <body>
