@@ -566,6 +566,10 @@ html.start-books #s-books{opacity:1 !important; visibility:visible !important; t
 @media (max-aspect-ratio:1/1){
   #s-hub{padding-top:calc(var(--bip-head-h) + 2vh)}
 }
+/* меню и видео: карточки на 180px выше центра (safe — не залезают под шапку) */
+#s-hub{justify-content:safe center}
+#s-hub .tiles{margin-bottom:360px}
+#s-video .vgrid{position:relative;top:-180px}
 /* заголовок меню — белый, как и заголовки дочерних экранов */
 #s-hub h1{background:none; -webkit-background-clip:border-box; background-clip:border-box; color:#f5eee1}
 /* ---- заголовки дочерних экранов — в том же стиле, что и заголовок меню ---- */
@@ -1325,7 +1329,8 @@ function groupCenter(sc,head,grid,h){
   const a=groupArea(sc,head);
   const areaBottom=grid.getBoundingClientRect().bottom-a.top0;
   const total=head.offsetHeight+groupGap()+h;
-  const start=a.areaTop+Math.max(0,(areaBottom-a.areaTop-total)/2);
+  /* guruh markazdan 180px yuqorida, lekin shapkaga chiqmaydi */
+  const start=a.areaTop+Math.max(0,(areaBottom-a.areaTop-total)/2-180);
   head.style.top=start+'px'; head.style.transform='none';
   grid.style.top=(start+head.offsetHeight+groupGap())+'px';
   grid.style.bottom='auto'; grid.style.height=h+'px';
