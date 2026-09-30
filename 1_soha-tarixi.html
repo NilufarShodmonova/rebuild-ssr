@@ -413,6 +413,39 @@ body.light #dots i.on{background:var(--gl)!important}
   .mach.has-specs .art{flex-basis:50%}
   .hero .art{width:26%;flex-basis:56%}
 }
+
+/* ================= фото — на весь слайд, текст — между верхом и серединой =================
+   картинка лежит фоном под всем слайдом; группа текста центрируется
+   в верхних 60% высоты (распорка ::after занимает нижние 40%) */
+.sl:has(>.vis.portal),.sl:has(>.mach){justify-content:center;gap:1.6vh}
+.sl:has(>.vis.portal)::after,.sl:has(>.mach)::after{content:"";flex:0 0 40%}
+.sl>.vis.portal{position:absolute!important;inset:0!important;width:auto;flex:none;z-index:0}
+.sl>.vis.portal img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;object-fit:cover}
+.mach .art{position:absolute!important;inset:0!important;width:auto!important;height:auto!important;flex:none;z-index:0;
+  border:0!important;border-radius:0!important;box-shadow:none!important}
+/* затемнение сверху, чтобы текст читался на любом снимке */
+.sl:has(>.vis.portal)>.scrim{display:none}
+.sl>.vis.portal::after,.mach .art::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(7,13,24,.72) 0%,rgba(7,13,24,.80) 35%,rgba(7,13,24,.45) 58%,rgba(7,13,24,.15) 70%,rgba(7,13,24,.70) 84%,rgba(7,13,24,.95) 100%)}
+
+/* текст на фото-слайдах — слева направо, по левому краю */
+.sl:has(>.vis.portal),.sl:has(>.mach){align-items:stretch}
+.sl:has(>.vis.portal)>.era,.sl:has(>.vis.portal)>.cap,.sl:has(>.vis.portal)>.cr,
+.sl:has(>.mach)>.era,.sl:has(>.mach) .cap,.sl:has(>.mach)>.cr{text-align:left!important;padding-left:7vw;padding-right:7vw;max-width:none}
+.sl:has(>.vis.portal)>.cap p,.sl:has(>.mach) .cap p{margin:0!important}
+.sl:has(>.mach) .meta{justify-content:flex-start!important;padding:0 7vw!important;text-align:left}
+.sl:has(>.mach) .meta span{text-align:left!important}
+.sl:has(>.mach) .specs{padding:0 7vw!important}
+/* точки прогресса видны и на светлом фото */
+#dots i{background:rgba(245,238,223,.6)!important;box-shadow:0 0 0 1px rgba(7,13,24,.55)}
+#dots i.on{background:var(--gl)!important}
+.sl:has(>.vis.portal)>*:not(.vis),.sl:has(>.mach) .meta,.sl:has(>.mach) .specs,
+.sl:has(>.mach) .cap,.sl:has(>.mach)>.era,.sl:has(>.mach)>.cr{z-index:3;text-shadow:0 .2vh 1.4vh rgba(0,0,0,.85)}
+
+/* фото уходит под нижние кнопки — до самого низа экрана */
+:root{--bip-under:calc(var(--bip-bottom) + var(--bip-home-h,74px) + var(--bip-gap) + var(--bip-dots) + var(--bip-clear))}
+.sl>.vis.portal,.mach .art{bottom:calc(-1 * var(--bip-under))!important}
 </style>
 </head>
 <body>
